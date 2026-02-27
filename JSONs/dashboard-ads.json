@@ -1,0 +1,79 @@
+{
+    "dashboard/ads": {
+        "nimman-connex": {
+            "total": 1248,
+            "groups": {
+                "male": {
+                    "count": 523,
+                    "percent": 41.9
+                },
+                "female": {
+                    "count": 725,
+                    "percent": 58.1
+                },
+                "adult": {
+                    "count": 524,
+                    "percent": 42.0
+                },
+                "elderly": {
+                    "count": 225,
+                    "percent": 18.0
+                },
+                "child": {
+                    "count": 187,
+                    "percent": 15.0
+                }
+            }
+        },
+        "one-nimman": {
+            "total": 1860,
+            "groups": {
+                "male": {
+                    "count": 810,
+                    "percent": 43.5
+                },
+                "female": {
+                    "count": 1050,
+                    "percent": 56.5
+                },
+                "adult": {
+                    "count": 900,
+                    "percent": 48.4
+                },
+                "elderly": {
+                    "count": 310,
+                    "percent": 16.7
+                },
+                "child": {
+                    "count": 250,
+                    "percent": 13.4
+                }
+            }
+        },
+        "maya-mall": {
+            "total": 3500,
+            "groups": {
+                "male": {
+                    "count": 1540,
+                    "percent": 44.0
+                },
+                "female": {
+                    "count": 1960,
+                    "percent": 56.0
+                },
+                "adult": {
+                    "count": 1800,
+                    "percent": 51.4
+                },
+                "elderly": {
+                    "count": 420,
+                    "percent": 12.0
+                },
+                "child": {
+                    "count": 580,
+                    "percent": 16.6
+                }
+            }
+        }
+    }
+}

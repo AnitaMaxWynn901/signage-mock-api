@@ -1,0 +1,31 @@
+{
+    "shops": {
+        "nimman-connex": {
+            "display_name": "Nimman Connex",
+            "device_code": "NIMMAN-001",
+            "category": "retail",
+            "location": {
+                "lat": 18.7953,
+                "lng": 98.9683
+            }
+        },
+        "one-nimman": {
+            "display_name": "One Nimman",
+            "device_code": "ONE-NIM-001",
+            "category": "lifestyle",
+            "location": {
+                "lat": 18.7975,
+                "lng": 98.9672
+            }
+        },
+        "maya-mall": {
+            "display_name": "MAYA Lifestyle Shopping Center",
+            "device_code": "MAYA-001",
+            "category": "mall",
+            "location": {
+                "lat": 18.8025,
+                "lng": 98.9674
+            }
+        }
+    }
+}

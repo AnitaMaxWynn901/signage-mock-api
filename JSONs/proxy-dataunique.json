@@ -1,0 +1,13 @@
+{
+    "proxy/dataunique": {
+        "nimman-connex": {
+            "total_unique_devices": 1250
+        },
+        "one-nimman": {
+            "total_unique_devices": 2100
+        },
+        "maya-mall": {
+            "total_unique_devices": 4800
+        }
+    }
+}

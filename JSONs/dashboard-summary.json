@@ -1,0 +1,28 @@
+{
+    "dashboard/summary": {
+        "nimman-connex": {
+            "kpis": {
+                "district_count": 1250,
+                "area_count": 340,
+                "front_store": 296,
+                "in_store": 203
+            }
+        },
+        "one-nimman": {
+            "kpis": {
+                "district_count": 2100,
+                "area_count": 580,
+                "front_store": 445,
+                "in_store": 312
+            }
+        },
+        "maya-mall": {
+            "kpis": {
+                "district_count": 4800,
+                "area_count": 1200,
+                "front_store": 980,
+                "in_store": 670
+            }
+        }
+    }
+}

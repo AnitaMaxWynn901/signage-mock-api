@@ -1,0 +1,134 @@
+{
+    "proxy/movement": {
+        "nimman-connex": {
+            "totals": {
+                "inbound": 482,
+                "internal": 156,
+                "outbound": 347,
+                "overall": 985
+            },
+            "byCategory": {
+                "myCategory": "retail",
+                "inbound": [
+                    {
+                        "from_category": "Cafe & Restaurant",
+                        "value": 168
+                    },
+                    {
+                        "from_category": "Retail",
+                        "value": 124
+                    },
+                    {
+                        "from_category": "Service",
+                        "value": 98
+                    },
+                    {
+                        "from_category": "Entertainment",
+                        "value": 62
+                    },
+                    {
+                        "from_category": "Others",
+                        "value": 30
+                    }
+                ],
+                "internal": [
+                    {
+                        "category": "retail",
+                        "value": 156
+                    }
+                ],
+                "outbound": [
+                    {
+                        "to_category": "Cafe & Restaurant",
+                        "value": 142
+                    },
+                    {
+                        "to_category": "Retail",
+                        "value": 108
+                    },
+                    {
+                        "to_category": "Service",
+                        "value": 50
+                    },
+                    {
+                        "to_category": "Entertainment",
+                        "value": 33
+                    },
+                    {
+                        "to_category": "Others",
+                        "value": 14
+                    }
+                ]
+            }
+        },
+        "one-nimman": {
+            "totals": {
+                "inbound": 560,
+                "internal": 210,
+                "outbound": 445,
+                "overall": 1215
+            }
+        },
+        "maya-mall": {
+            "totals": {
+                "inbound": 1500,
+                "internal": 680,
+                "outbound": 1200,
+                "overall": 3380
+            },
+            "byCategory": {
+                "myCategory": "mall",
+                "inbound": [
+                    {
+                        "from_category": "Cafe & Restaurant",
+                        "value": 450
+                    },
+                    {
+                        "from_category": "Retail",
+                        "value": 400
+                    },
+                    {
+                        "from_category": "Service",
+                        "value": 300
+                    },
+                    {
+                        "from_category": "Entertainment",
+                        "value": 200
+                    },
+                    {
+                        "from_category": "Others",
+                        "value": 150
+                    }
+                ],
+                "internal": [
+                    {
+                        "category": "mall",
+                        "value": 680
+                    }
+                ],
+                "outbound": [
+                    {
+                        "to_category": "Cafe & Restaurant",
+                        "value": 380
+                    },
+                    {
+                        "to_category": "Retail",
+                        "value": 320
+                    },
+                    {
+                        "to_category": "Service",
+                        "value": 220
+                    },
+                    {
+                        "to_category": "Entertainment",
+                        "value": 160
+                    },
+                    {
+                        "to_category": "Others",
+                        "value": 120
+                    }
+                ]
+            }
+        }
+    }
+}

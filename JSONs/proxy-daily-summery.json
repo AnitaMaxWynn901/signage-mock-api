@@ -1,0 +1,82 @@
+{
+    "proxy/daily-summery": {
+        "nimman-connex": {
+            "range": "2026-02-25",
+            "count": 4,
+            "data": [
+                {
+                    "name_name": "Sensor A",
+                    "location": "ชั้น 1 ทางเข้าหลัก",
+                    "total_devices": 78
+                },
+                {
+                    "name_name": "Sensor B",
+                    "location": "ชั้น 1 ทางเข้าข้าง",
+                    "total_devices": 57
+                },
+                {
+                    "name_name": "Sensor C",
+                    "location": "ชั้น 2",
+                    "total_devices": 40
+                },
+                {
+                    "name_name": "Sensor D",
+                    "location": "ชั้น 3",
+                    "total_devices": 28
+                }
+            ]
+        },
+        "one-nimman": {
+            "range": "2026-02-25",
+            "count": 3,
+            "data": [
+                {
+                    "name_name": "Main Gate",
+                    "location": "ทางเข้าหลัก",
+                    "total_devices": 145
+                },
+                {
+                    "name_name": "Food Court",
+                    "location": "ศูนย์อาหาร",
+                    "total_devices": 98
+                },
+                {
+                    "name_name": "Garden",
+                    "location": "สวนหลัง",
+                    "total_devices": 69
+                }
+            ]
+        },
+        "maya-mall": {
+            "range": "2026-02-25",
+            "count": 5,
+            "data": [
+                {
+                    "name_name": "G Floor",
+                    "location": "ชั้น G ทางเข้า",
+                    "total_devices": 210
+                },
+                {
+                    "name_name": "1st Floor",
+                    "location": "ชั้น 1",
+                    "total_devices": 155
+                },
+                {
+                    "name_name": "2nd Floor",
+                    "location": "ชั้น 2",
+                    "total_devices": 128
+                },
+                {
+                    "name_name": "3rd Floor",
+                    "location": "ชั้น 3",
+                    "total_devices": 98
+                },
+                {
+                    "name_name": "Food Hall",
+                    "location": "ชั้น 5 Food Hall",
+                    "total_devices": 87
+                }
+            ]
+        }
+    }
+}
