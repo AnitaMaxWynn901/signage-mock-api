@@ -1,0 +1,21 @@
+{
+    "dashboard/summary-hourly": {
+        "nimman-connex": {
+            "note": "Format pending from mentor",
+            "sample_hourly_data": [
+                {
+                    "hour": "09:00",
+                    "count": 120
+                },
+                {
+                    "hour": "10:00",
+                    "count": 150
+                },
+                {
+                    "hour": "11:00",
+                    "count": 180
+                }
+            ]
+        }
+    }
+}

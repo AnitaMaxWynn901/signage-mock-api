@@ -12,6 +12,7 @@ app.use(express.json());
 
 const shopInfo = require('./JSONs/shop-info.json');
 const dashboardSummary = require('./JSONs/dashboard-summary.json');
+const dashboardSummaryHourly = require('./JSONs/dashboard-summary-hourly.json');
 const dashboardAds = require('./JSONs/dashboard-ads.json');
 const dashboardViewer = require('./JSONs/dashboard-viewer.json');
 const proxyCrowd = require('./JSONs/proxy-crowd.json');
@@ -19,6 +20,56 @@ const proxyCrowdBatch = require('./JSONs/proxy-crowd-batch.json');
 const proxyDailySummary = require('./JSONs/proxy-daily-summery.json');
 const proxyDataUnique = require('./JSONs/proxy-dataunique.json');
 const proxyMovement = require('./JSONs/proxy-movement.json');
+
+// ===== helpers =====
+const requireDate = (req, res) => {
+    const { date } = req.body || {};
+    if (!date) {
+        res.status(400).json({
+            success: false,
+            message: "date is required!"
+        });
+        return null;
+    }
+    return date;
+};
+
+const respondWithOptionalShopFilter = (res, payload, rootKey, date, shopname) => {
+    const rootObj = payload[rootKey];
+
+    // safety check
+    if (!rootObj || typeof rootObj !== "object") {
+        return res.status(500).json({
+            success: false,
+            message: `Invalid JSON format: missing root key "${rootKey}"`
+        });
+    }
+
+    // filter by shopname
+    if (shopname) {
+        const shopData = rootObj[shopname];
+        if (!shopData) {
+            return res.status(404).json({
+                success: false,
+                message: "404 SHOP NOT FOUND"
+            });
+        }
+        return res.json({
+            success: true,
+            date,
+            [rootKey]: {
+                [shopname]: shopData
+            }
+        });
+    }
+
+    // return all
+    return res.json({
+        success: true,
+        date,
+        ...payload
+    });
+};
 
 // ============================================
 // TEST ENDPOINT
@@ -34,6 +85,7 @@ app.get('/', (req, res) => {
                 "/api/v3/dashboard/summary",
                 "/api/v3/dashboard/ads",
                 "/api/v3/dashboard/viewer",
+                "/api/v3/dashboard/summary-hourly",
                 "/api/v3/proxy/crowd",
                 "/api/v3/proxy/crowd-batch",
                 "/api/v3/proxy/daily-summery",
@@ -58,16 +110,26 @@ app.get('/api/v3/shop-info', (req, res) => {
 // 2. DASHBOARD SUMMARY
 // ============================================
 app.post('/api/v3/dashboard/summary', (req, res) => {
-    console.log('📊 POST /api/v3/dashboard/summary');
-    res.json(dashboardSummary);
+  console.log('📊 POST /api/v3/dashboard/summary');
+
+  const date = requireDate(req, res);
+  if (!date) return;
+
+  const { shopname } = req.body;
+  return respondWithOptionalShopFilter(res, dashboardSummary, "dashboard/summary", date, shopname);
 });
 
 // ============================================
 // 3. DASHBOARD ADS
 // ============================================
 app.post('/api/v3/dashboard/ads', (req, res) => {
-    console.log('📺 POST /api/v3/dashboard/ads');
-    res.json(dashboardAds);
+  console.log('📺 POST /api/v3/dashboard/ads');
+
+  const date = requireDate(req, res);
+  if (!date) return;
+
+  const { shopname } = req.body;
+  return respondWithOptionalShopFilter(res, dashboardAds, "dashboard/ads", date, shopname);
 });
 
 // ============================================
@@ -83,70 +145,95 @@ app.post('/api/v3/reset', (req, res) => {
 });
 
 // ============================================
-// 5. DASHBOARD SUMMARY HOURLY (placeholder)
+// 5. DASHBOARD VIEWER
 // ============================================
-// app.post('/api/v3/dashboard/summary-hourly', (req, res) => {
-//     console.log('⏰ POST /api/v3/dashboard/summary-hourly');
-//     // TODO: Ask mentor for JSON format
-//     res.json({
-//         "dashboard/summary-hourly": {
-//             "nimman-connex": {
-//                 "sample_hourly_data": [
-//                     { "hour": "09:00", "count": 120 },
-//                     { "hour": "10:00", "count": 150 },
-//                     { "hour": "11:00", "count": 180 }
-//                 ]
-//             }
-//         }
-//     });
-// });
+app.post('/api/v3/dashboard/summary-hourly', (req, res) => {
+  console.log('👁️ POST /api/v3/dashboard/summary-hourly');
+
+  const date = requireDate(req, res);
+  if (!date) return;
+
+  const { shopname } = req.body;
+  return respondWithOptionalShopFilter(res, dashboardSummaryHourly, "dashboard/summary-hourly", date, shopname);
+});
+
 
 // ============================================
-// 6. DASHBOARD VIEWER
+// 5. DASHBOARD VIEWER
 // ============================================
 app.post('/api/v3/dashboard/viewer', (req, res) => {
-    console.log('👁️ POST /api/v3/dashboard/viewer');
-    res.json(dashboardViewer);
+  console.log('👁️ POST /api/v3/dashboard/viewer');
+
+  const date = requireDate(req, res);
+  if (!date) return;
+
+  const { shopname } = req.body;
+  return respondWithOptionalShopFilter(res, dashboardViewer, "dashboard/viewer", date, shopname);
 });
 
 // ============================================
-// 7. PROXY CROWD
+// 6. PROXY CROWD
 // ============================================
 app.post('/api/v3/proxy/crowd', (req, res) => {
-    console.log('👥 POST /api/v3/proxy/crowd');
-    res.json(proxyCrowd);
+  console.log('👥 POST /api/v3/proxy/crowd');
+
+  const date = requireDate(req, res);
+  if (!date) return;
+
+  const { shopname } = req.body;
+  return respondWithOptionalShopFilter(res, proxyCrowd, "proxy/crowd", date, shopname);
 });
 
 // ============================================
-// 8. PROXY CROWD BATCH
+// 7. PROXY CROWD BATCH
 // ============================================
 app.post('/api/v3/proxy/crowd-batch', (req, res) => {
-    console.log('📦 POST /api/v3/proxy/crowd-batch');
-    res.json(proxyCrowdBatch);
+  console.log('📦 POST /api/v3/proxy/crowd-batch');
+
+  const date = requireDate(req, res);
+  if (!date) return;
+
+  const { shopname } = req.body;
+  return respondWithOptionalShopFilter(res, proxyCrowdBatch, "proxy/crowd-batch", date, shopname);
 });
 
 // ============================================
-// 9. PROXY DAILY SUMMARY
+// 8. PROXY DAILY SUMMARY
 // ============================================
 app.post('/api/v3/proxy/daily-summery', (req, res) => {
-    console.log('📅 POST /api/v3/proxy/daily-summery');
-    res.json(proxyDailySummary);
+  console.log('📅 POST /api/v3/proxy/daily-summery');
+
+  const date = requireDate(req, res);
+  if (!date) return;
+
+  const { shopname } = req.body;
+  return respondWithOptionalShopFilter(res, proxyDailySummary, "proxy/daily-summery", date, shopname);
 });
 
 // ============================================
-// 10. PROXY DATA UNIQUE
+// 9. PROXY DATA UNIQUE
 // ============================================
 app.post('/api/v3/proxy/dataunique', (req, res) => {
-    console.log('🔢 POST /api/v3/proxy/dataunique');
-    res.json(proxyDataUnique);
+  console.log('🔢 POST /api/v3/proxy/dataunique');
+
+  const date = requireDate(req, res);
+  if (!date) return;
+
+  const { shopname } = req.body;
+  return respondWithOptionalShopFilter(res, proxyDataUnique, "proxy/dataunique", date, shopname);
 });
 
 // ============================================
-// 11. PROXY MOVEMENT
+// 10. PROXY MOVEMENT
 // ============================================
 app.post('/api/v3/proxy/movement', (req, res) => {
-    console.log('🚶 POST /api/v3/proxy/movement');
-    res.json(proxyMovement);
+  console.log('🚶 POST /api/v3/proxy/movement');
+
+  const date = requireDate(req, res);
+  if (!date) return;
+
+  const { shopname } = req.body;
+  return respondWithOptionalShopFilter(res, proxyMovement, "proxy/movement", date, shopname);
 });
 
 // ============================================
@@ -164,6 +251,7 @@ app.listen(PORT, () => {
     console.log('   POST /api/v3/dashboard/summary');
     console.log('   POST /api/v3/dashboard/ads');
     console.log('   POST /api/v3/dashboard/viewer');
+    console.log('   POST /api/v3/dashboard/summary-hourly');
     console.log('   POST /api/v3/proxy/crowd');
     console.log('   POST /api/v3/proxy/crowd-batch');
     console.log('   POST /api/v3/proxy/daily-summery');
