@@ -11,49 +11,70 @@
 
 <body>
     <div class="container">
+        <!-- Enhanced Header -->
         <div class="header-card">
-            <h1 id="shopName">Loading...</h1>
-            <p class="subtitle" id="date">Fetching data...</p>
+            <div class="shop-icon" id="shopIcon">N</div>
+            <div class="shop-info">
+                <h1 id="shopName">Loading...</h1>
+                <p class="subtitle" id="shopSubtitle">Retail Analytics Dashboard</p>
+                <div class="header-meta">
+                    <div>
+                        <span>📅</span>
+                        <span id="date">Loading...</span>
+                    </div>
+                    <div>
+                        <span>🕐</span>
+                        <span>Full Day Data</span>
+                    </div>
+                </div>
+            </div>
+            <div class="live-badge">Live</div>
         </div>
 
+        <!-- Date Selector -->
         <div class="date-selector">
             <input type="date" id="dateInput">
         </div>
 
+        <!-- Loading State -->
         <div id="loading" class="loading">
             <h2>📊 Loading Summary...</h2>
         </div>
 
+        <!-- Error State -->
         <div id="error" class="error" style="display: none;">
             <h3>❌ Error</h3>
             <p id="errorMessage"></p>
         </div>
 
+        <!-- Stats Container -->
         <div id="statsContainer" style="display: none;">
+            <!-- District Total -->
             <div class="circular-stat mb-lg">
                 <div class="circle">
                     <div class="circle-icon">🏙️</div>
                     <div class="circle-value" id="districtCount">-</div>
                 </div>
-                <div class="circle-label">DISTRICTS TOTAL</div>
+                <div class="circle-label">DISTRICTS TOTAL<br>จำนวนผู้เยี่ยมชมทั้งหมด</div>
             </div>
 
+            <!-- Other Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="icon">📍</div>
-                    <div class="label">Area</div>
+                    <div class="label">Area<br>พื้นที่</div>
                     <div class="value" id="areaCount">-</div>
                 </div>
 
                 <div class="stat-card">
                     <div class="icon">🏪</div>
-                    <div class="label">Front Store</div>
+                    <div class="label">Front Store<br>หน้าร้าน</div>
                     <div class="value" id="frontStore">-</div>
                 </div>
 
                 <div class="stat-card">
                     <div class="icon">🛍️</div>
-                    <div class="label">In Store</div>
+                    <div class="label">In Store<br>ในร้าน</div>
                     <div class="value" id="inStore">-</div>
                 </div>
             </div>

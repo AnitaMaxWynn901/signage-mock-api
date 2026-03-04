@@ -7,13 +7,69 @@
     <title>Flow - Smart Signage</title>
     <link rel="stylesheet" href="../style/base.css">
     <link rel="stylesheet" href="../style/components.css">
+    <style>
+        /* Flow diagram specific styles */
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-2xl);
+            align-items: center;
+            padding: var(--spacing-xl);
+        }
+
+        .flow-row {
+            display: flex;
+            gap: var(--spacing-xl);
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .flow-center {
+            position: relative;
+        }
+
+        .flow-line {
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(180deg, var(--gray-300), var(--gray-400));
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .conversion-badge {
+            background: white;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            color: var(--danger-color);
+            box-shadow: var(--shadow-sm);
+            margin: var(--spacing-sm) 0;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
+        <!-- Enhanced Header -->
         <div class="header-card">
-            <h1 id="shopName">Loading...</h1>
-            <p class="subtitle" id="date">Fetching data...</p>
+            <div class="shop-icon" id="shopIcon">N</div>
+            <div class="shop-info">
+                <h1 id="shopName">Loading...</h1>
+                <p class="subtitle" id="shopSubtitle">Customer Movement Flow</p>
+                <div class="header-meta">
+                    <div>
+                        <span>📅</span>
+                        <span id="date">Loading...</span>
+                    </div>
+                    <div>
+                        <span>🕐</span>
+                        <span>Full Day Data</span>
+                    </div>
+                </div>
+            </div>
+            <div class="live-badge">Live</div>
         </div>
 
         <div class="date-selector">
@@ -31,36 +87,59 @@
 
         <div id="statsContainer" style="display: none;">
             <!-- Movement Totals -->
-            <div class="stats-grid mb-lg">
-                <div class="stat-card">
-                    <div class="icon">📥</div>
-                    <div class="label">Inbound<br>เข้า</div>
-                    <div class="value" id="inbound" style="color: var(--info-color);">-</div>
+            <div class="section-header">MOVEMENT TOTALS</div>
+            <div class="stats-grid-3 mb-xl">
+                <div class="movement-card inbound">
+                    <div class="label">INBOUND</div>
+                    <div class="value" id="inbound">-</div>
+                    <div class="sublabel">Come in</div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="icon">🔄</div>
-                    <div class="label">Internal<br>ภายใน</div>
-                    <div class="value" id="internal" style="color: var(--warning-color);">-</div>
+                <div class="movement-card internal">
+                    <div class="label">INTERNAL</div>
+                    <div class="value" id="internal">-</div>
+                    <div class="sublabel">Interior</div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="icon">📤</div>
-                    <div class="label">Outbound<br>ออก</div>
-                    <div class="value" id="outbound" style="color: var(--danger-color);">-</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="icon">📊</div>
-                    <div class="label">Overall<br>รวม</div>
-                    <div class="value" id="overall" style="color: var(--success-color);">-</div>
+                <div class="movement-card outbound">
+                    <div class="label">OUTBOUND</div>
+                    <div class="value" id="outbound">-</div>
+                    <div class="sublabel">Get out</div>
                 </div>
             </div>
 
-            <!-- Category Breakdown -->
-            <div class="demographics">
-                <h3 class="mb-md">Category Flow</h3>
-                <div id="categoryFlow"></div>
+            <!-- Category Flow Diagram -->
+            <div class="section-header">CATEGORY FLOW V2</div>
+            <div class="flow-diagram">
+                <div class="flow-container">
+                    <!-- Top Row - Inbound Categories -->
+                    <div class="flow-row" id="inboundCategories">
+                        <!-- Populated by JavaScript -->
+                    </div>
+
+                    <!-- Middle - Front Store -->
+                    <div class="flow-center">
+                        <div class="flow-node front-store">
+                            <div class="node-label">MY STORE</div>
+                            <div class="node-label" style="font-size: 0.6rem;">Front Store</div>
+                            <div class="node-value" id="frontStoreValue">-</div>
+                        </div>
+                        <div class="conversion-badge" id="conversionBadge">68.6%</div>
+                    </div>
+
+                    <!-- Bottom - In Store -->
+                    <div>
+                        <div class="flow-node in-store">
+                            <div class="node-label">In Store</div>
+                            <div class="node-value" id="inStoreValue">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Row - Outbound Categories -->
+                    <div class="flow-row" id="outboundCategories">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
