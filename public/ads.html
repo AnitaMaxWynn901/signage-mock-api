@@ -2,73 +2,382 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ADS Display - Smart Signage</title>
-    <link rel="stylesheet" href="../style/base.css">
-    <link rel="stylesheet" href="../style/components.css">
+
+    <link rel="stylesheet" href="../style/base.css" />
+    <link rel="stylesheet" href="../style/components.css" />
+
+    <!-- ADS-only styles -->
+    <style>
+        .ads-total {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 18px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ads-total::after {
+            content: "";
+            position: absolute;
+            right: -60px;
+            top: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(79, 70, 229, .14), transparent 60%);
+            pointer-events: none;
+        }
+
+        .ads-total .kicker {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--muted);
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .ads-total .big {
+            font-size: 54px;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: var(--primary);
+            margin-top: 8px;
+            line-height: 1;
+        }
+
+        .ads-total .sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 8px;
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 18px;
+        }
+
+        /* Gender cards */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 760px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .metric-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .metric-card .icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-weight: 900;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+        }
+
+        .metric-card .label {
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .metric-card .value {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin-top: 6px;
+        }
+
+        .metric-card .percent {
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--muted);
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .metric-card .bar {
+            height: 8px;
+            background: #eef2f7;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .metric-card .bar>div {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            transition: width 600ms ease;
+        }
+
+        /* Pie chart layout */
+        .pie-layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 18px;
+            align-items: center;
+        }
+
+        @media (max-width: 900px) {
+            .pie-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pie-card {
+            display: grid;
+            place-items: center;
+            padding: 10px;
+        }
+
+        .pie {
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: conic-gradient(var(--pie-a) 0 var(--p1),
+                    var(--pie-b) var(--p1) var(--p2),
+                    var(--pie-c) var(--p2) var(--p3),
+                    var(--pie-d) var(--p3) 360deg);
+            box-shadow: inset 0 0 0 1px rgba(17, 24, 39, .06);
+            position: relative;
+        }
+
+        .pie-center {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            pointer-events: none;
+        }
+
+        .pie-center .center-box {
+            background: rgba(255, 255, 255, .92);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            border-radius: 16px;
+            padding: 10px 14px;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .pie-center .center-value {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            line-height: 1.1;
+        }
+
+        .pie-center .center-label {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+            font-weight: 700;
+        }
+
+        .legend {
+            display: grid;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: grid;
+            grid-template-columns: 14px 1fr auto;
+            gap: 10px;
+            align-items: center;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            border-radius: 14px;
+        }
+
+        .swatch {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+        }
+
+        .legend-item .name {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .legend-item .meta {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        /* Pie colors (chosen to be readable + consistent) */
+        :root {
+            --pie-a: #2563eb;
+            /* blue */
+            --pie-b: #16a34a;
+            /* green */
+            --pie-c: #f59e0b;
+            /* amber */
+            --pie-d: #8b5cf6;
+            /* purple */
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
+
+        <!-- Header (theme-consistent) -->
         <div class="header-card">
-            <h1 id="shopName">Loading...</h1>
-            <p class="subtitle" id="date">Fetching data...</p>
+            <div class="shop-icon" id="shopIcon">N</div>
+
+            <div class="shop-info">
+                <h1 id="shopName">Loading...</h1>
+                <p class="subtitle">ADS Display Analytics</p>
+
+                <div class="header-meta">
+                    <div>📅 <span id="date">Loading...</span></div>
+                    <div>🕐 Full Day Data</div>
+                </div>
+            </div>
+
+            <div class="live-badge">Live</div>
         </div>
 
         <div class="date-selector">
-            <input type="date" id="dateInput">
+            <input type="date" id="dateInput" />
         </div>
 
         <div id="loading" class="loading">
-            <h2>📺 Loading ADS Data...</h2>
+            <h2>Loading ADS Data...</h2>
         </div>
 
-        <div id="error" class="error" style="display: none;">
-            <h3>❌ Error</h3>
+        <div id="error" class="error" style="display:none;">
+            <h3>Error</h3>
             <p id="errorMessage"></p>
         </div>
 
-        <div id="statsContainer" style="display: none;">
-            <div class="demographics mb-lg">
-                <div class="total">
-                    <div class="total-value" id="totalValue">-</div>
-                    <div class="total-label">Total Plays</div>
+        <div id="statsContainer" style="display:none;">
+
+            <div class="section-header">ADS display</div>
+
+            <div class="ads-total mb-lg">
+                <div class="kicker">Total plays</div>
+                <div class="big" id="totalValue">-</div>
+                <div class="sub">Total number of ad plays (times)</div>
+            </div>
+
+            <div class="section-header">Separated by gender</div>
+
+            <div class="two-col mb-lg">
+                <div class="metric-card" id="maleCard">
+                    <div class="top">
+                        <div>
+                            <div class="label">Male</div>
+                            <div class="value" id="maleCount">-</div>
+                        </div>
+                        <div class="percent" id="malePercent">-%</div>
+                    </div>
+                    <div class="bar">
+                        <div id="maleBar" style="background:#2563eb;"></div>
+                    </div>
                 </div>
 
-                <h3 class="mb-md">Gender Distribution</h3>
-                <div class="demo-grid mb-lg">
-                    <div class="demo-item male">
-                        <div class="demo-value" id="maleCount">-</div>
-                        <div class="demo-label">Male</div>
-                        <div class="demo-percent" id="malePercent">-%</div>
+                <div class="metric-card" id="femaleCard">
+                    <div class="top">
+                        <div>
+                            <div class="label">Female</div>
+                            <div class="value" id="femaleCount">-</div>
+                        </div>
+                        <div class="percent" id="femalePercent">-%</div>
                     </div>
-                    <div class="demo-item female">
-                        <div class="demo-value" id="femaleCount">-</div>
-                        <div class="demo-label">Female</div>
-                        <div class="demo-percent" id="femalePercent">-%</div>
-                    </div>
-                </div>
-
-                <h3 class="mb-md">Age Distribution</h3>
-                <div class="demo-grid">
-                    <div class="demo-item adult">
-                        <div class="demo-value" id="adultCount">-</div>
-                        <div class="demo-label">Adult</div>
-                        <div class="demo-percent" id="adultPercent">-%</div>
-                    </div>
-                    <div class="demo-item elderly">
-                        <div class="demo-value" id="elderlyCount">-</div>
-                        <div class="demo-label">Elderly</div>
-                        <div class="demo-percent" id="elderlyPercent">-%</div>
-                    </div>
-                    <div class="demo-item child">
-                        <div class="demo-value" id="childCount">-</div>
-                        <div class="demo-label">Child</div>
-                        <div class="demo-percent" id="childPercent">-%</div>
+                    <div class="bar">
+                        <div id="femaleBar" style="background:#db2777;"></div>
                     </div>
                 </div>
             </div>
+
+            <div class="section-header">Age distribution</div>
+
+            <div class="panel">
+                <div class="pie-layout">
+                    <div class="pie-card">
+                        <!-- Angles are set by JS via CSS variables -->
+                        <div class="pie" id="agePie" style="--p1: 90deg; --p2: 180deg; --p3: 270deg;">
+                            <div class="pie-center">
+                                <div class="center-box">
+                                    <div class="center-value" id="ageTotal">-</div>
+                                    <div class="center-label">Total plays</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="legend" id="ageLegend">
+                        <!-- filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header">Audience details</div>
+
+            <div class="stats-grid-3">
+                <div class="movement-card inbound">
+                    <div class="label">Adult</div>
+                    <div class="value" id="adultCount">-</div>
+                    <div class="sublabel" id="adultPercent">-%</div>
+                </div>
+
+                <div class="movement-card internal">
+                    <div class="label">Elderly</div>
+                    <div class="value" id="elderlyCount">-</div>
+                    <div class="sublabel" id="elderlyPercent">-%</div>
+                </div>
+
+                <div class="movement-card outbound">
+                    <div class="label">Children</div>
+                    <div class="value" id="childCount">-</div>
+                    <div class="sublabel" id="childPercent">-%</div>
+                </div>
+            </div>
+
         </div>
     </div>
 

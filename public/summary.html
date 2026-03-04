@@ -2,82 +2,418 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Summary - Smart Signage</title>
-    <link rel="stylesheet" href="../style/base.css">
-    <link rel="stylesheet" href="../style/components.css">
+
+    <link rel="stylesheet" href="../style/base.css" />
+    <link rel="stylesheet" href="../style/components.css" />
+
+    <!-- Summary-only small styles -->
+    <style>
+        .big-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .big-card::after {
+            content: "";
+            position: absolute;
+            right: -40px;
+            top: -40px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(79, 70, 229, .18), transparent 60%);
+            pointer-events: none;
+        }
+
+        .big-card .kicker {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--muted);
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .big-card .title {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .big-card .big-number {
+            font-size: 56px;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        @media (max-width: 980px) {
+            .stat-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 560px) {
+            .stat-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mini-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mini-card .mini-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .mini-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-weight: 900;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+        }
+
+        .mini-card .mini-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--muted);
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        .mini-card .mini-value {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin-top: 2px;
+        }
+
+        .mini-card .mini-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .mini-card .accent {
+            position: absolute;
+            inset: auto 0 0 0;
+            height: 4px;
+            background: rgba(79, 70, 229, .25);
+        }
+
+        .accent.district {
+            background: rgba(79, 70, 229, .65);
+        }
+
+        .accent.area {
+            background: rgba(14, 165, 233, .75);
+        }
+
+        .accent.front {
+            background: rgba(245, 158, 11, .85);
+        }
+
+        .accent.instore {
+            background: rgba(239, 68, 68, .75);
+        }
+
+        /* Simple chart */
+        .chart-wrap {
+            margin-top: 16px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .chart-subtitle {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 999px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+        }
+
+        .chart {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 18px;
+        }
+
+        .bars {
+            height: 240px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            align-items: end;
+            margin-top: 14px;
+            padding: 10px 6px 0;
+            border-top: 1px dashed rgba(17, 24, 39, .08);
+        }
+
+        .bar {
+            display: grid;
+            gap: 8px;
+            justify-items: center;
+        }
+
+        .bar .bar-value {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 800;
+        }
+
+        .bar .bar-pillar {
+            width: 56px;
+            border-radius: 14px;
+            height: 40px;
+            /* will be overwritten by JS */
+            transition: height 700ms ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bar .bar-pillar::after {
+            content: "";
+            position: absolute;
+            inset: 8px 10px auto 10px;
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .28);
+        }
+
+        .bar .bar-label {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 800;
+        }
+
+        .c-district {
+            background: linear-gradient(180deg, rgba(79, 70, 229, .9), rgba(79, 70, 229, .55));
+        }
+
+        .c-area {
+            background: linear-gradient(180deg, rgba(14, 165, 233, .9), rgba(14, 165, 233, .55));
+        }
+
+        .c-front {
+            background: linear-gradient(180deg, rgba(245, 158, 11, .95), rgba(245, 158, 11, .55));
+        }
+
+        .c-instore {
+            background: linear-gradient(180deg, rgba(239, 68, 68, .9), rgba(239, 68, 68, .55));
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
-        <!-- Enhanced Header -->
+
+        <!-- Header (keep your theme) -->
         <div class="header-card">
             <div class="shop-icon" id="shopIcon">N</div>
+
             <div class="shop-info">
                 <h1 id="shopName">Loading...</h1>
-                <p class="subtitle" id="shopSubtitle">Retail Analytics Dashboard</p>
+                <p class="subtitle">Retail Analytics Dashboard</p>
+
                 <div class="header-meta">
-                    <div>
-                        <span>📅</span>
-                        <span id="date">Loading...</span>
-                    </div>
-                    <div>
-                        <span>🕐</span>
-                        <span>Full Day Data</span>
-                    </div>
+                    <div>📅 <span id="date">Loading...</span></div>
+                    <div>🕐 Full Day Data</div>
                 </div>
             </div>
+
             <div class="live-badge">Live</div>
         </div>
 
-        <!-- Date Selector -->
+        <!-- Date selector -->
         <div class="date-selector">
-            <input type="date" id="dateInput">
+            <input type="date" id="dateInput" />
         </div>
 
-        <!-- Loading State -->
+        <!-- Loading / Error -->
         <div id="loading" class="loading">
-            <h2>📊 Loading Summary...</h2>
+            <h2>Loading Summary...</h2>
         </div>
 
-        <!-- Error State -->
-        <div id="error" class="error" style="display: none;">
-            <h3>❌ Error</h3>
+        <div id="error" class="error" style="display:none;">
+            <h3>Error</h3>
             <p id="errorMessage"></p>
         </div>
 
-        <!-- Stats Container -->
-        <div id="statsContainer" style="display: none;">
-            <!-- District Total -->
-            <div class="circular-stat mb-lg">
-                <div class="circle">
-                    <div class="circle-icon">🏙️</div>
-                    <div class="circle-value" id="districtCount">-</div>
-                </div>
-                <div class="circle-label">DISTRICTS TOTAL<br>จำนวนผู้เยี่ยมชมทั้งหมด</div>
+        <!-- Data -->
+        <div id="statsContainer" style="display:none;">
+
+            <div class="section-header">Visitors to the whole district</div>
+
+            <div class="big-card">
+                <div class="kicker">Districts total</div>
+                <div class="title">Number of visitors to the whole district</div>
+                <div class="big-number" id="districtCount">-</div>
             </div>
 
-            <!-- Other Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="icon">📍</div>
-                    <div class="label">Area<br>พื้นที่</div>
-                    <div class="value" id="areaCount">-</div>
+            <div class="section-header">Statistics by point</div>
+
+            <div class="stat-cards">
+                <div class="mini-card">
+                    <div class="mini-top">
+                        <div class="mini-icon">📍</div>
+                        <div>
+                            <div class="mini-label">Area</div>
+                            <div class="mini-value" id="areaCount">-</div>
+                        </div>
+                    </div>
+                    <div class="mini-sub">Area near the store</div>
+                    <div class="accent area"></div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="icon">🏪</div>
-                    <div class="label">Front Store<br>หน้าร้าน</div>
-                    <div class="value" id="frontStore">-</div>
+                <div class="mini-card">
+                    <div class="mini-top">
+                        <div class="mini-icon">🏪</div>
+                        <div>
+                            <div class="mini-label">Front Store</div>
+                            <div class="mini-value" id="frontStore">-</div>
+                        </div>
+                    </div>
+                    <div class="mini-sub">Storefront traffic</div>
+                    <div class="accent front"></div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="icon">🛍️</div>
-                    <div class="label">In Store<br>ในร้าน</div>
-                    <div class="value" id="inStore">-</div>
+                <div class="mini-card">
+                    <div class="mini-top">
+                        <div class="mini-icon">🛍️</div>
+                        <div>
+                            <div class="mini-label">In Store</div>
+                            <div class="mini-value" id="inStore">-</div>
+                        </div>
+                    </div>
+                    <div class="mini-sub">Enter the actual store</div>
+                    <div class="accent instore"></div>
+                </div>
+
+                <div class="mini-card">
+                    <div class="mini-top">
+                        <div class="mini-icon">📊</div>
+                        <div>
+                            <div class="mini-label">Conversion</div>
+                            <div class="mini-value" id="conversionRate">-%</div>
+                        </div>
+                    </div>
+                    <div class="mini-sub">In-store / Front-store</div>
+                    <div class="accent district"></div>
                 </div>
             </div>
+
+            <div class="chart-wrap">
+                <div class="section-header">Comparison graph</div>
+
+                <div class="chart">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">Visitors</div>
+                            <div class="chart-subtitle">Separated by measurement point</div>
+                        </div>
+
+                        <div class="legend">
+                            <span><i class="dot" style="background: rgba(79, 70, 229, .9)"></i>District</span>
+                            <span><i class="dot" style="background: rgba(14, 165, 233, .9)"></i>Area</span>
+                            <span><i class="dot" style="background: rgba(245, 158, 11, .95)"></i>Front</span>
+                            <span><i class="dot" style="background: rgba(239, 68, 68, .9)"></i>In Store</span>
+                        </div>
+                    </div>
+
+                    <div class="bars">
+                        <div class="bar">
+                            <div class="bar-value" id="chartDistrictValue">-</div>
+                            <div class="bar-pillar c-district" id="barDistrict"></div>
+                            <div class="bar-label">District</div>
+                        </div>
+
+                        <div class="bar">
+                            <div class="bar-value" id="chartAreaValue">-</div>
+                            <div class="bar-pillar c-area" id="barArea"></div>
+                            <div class="bar-label">Area</div>
+                        </div>
+
+                        <div class="bar">
+                            <div class="bar-value" id="chartFrontValue">-</div>
+                            <div class="bar-pillar c-front" id="barFront"></div>
+                            <div class="bar-label">Front</div>
+                        </div>
+
+                        <div class="bar">
+                            <div class="bar-value" id="chartInStoreValue">-</div>
+                            <div class="bar-pillar c-instore" id="barInStore"></div>
+                            <div class="bar-label">In Store</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 

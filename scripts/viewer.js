@@ -4,60 +4,88 @@ let currentShop = getCurrentShop();
 
 async function init() {
     const today = getTodayDate();
-    document.getElementById('dateInput').value = today;
+    document.getElementById("dateInput").value = today;
 
     await loadViewerData(today);
 
-    document.getElementById('dateInput').addEventListener('change', async (e) => {
+    document.getElementById("dateInput").addEventListener("change", async (e) => {
         await loadViewerData(e.target.value);
     });
 }
 
 async function loadViewerData(date) {
     try {
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('error').style.display = 'none';
-        document.getElementById('statsContainer').style.display = 'none';
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("error").style.display = "none";
+        document.getElementById("statsContainer").style.display = "none";
 
         const data = await getViewer(date, currentShop);
         displayViewerData(data, date);
     } catch (error) {
-        showError(error.message);
+        showError(error.message || String(error));
     }
 }
 
 function displayViewerData(data, date) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('statsContainer').style.display = 'block';
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("statsContainer").style.display = "block";
 
-    const viewerData = data['dashboard/viewer'][currentShop];
-    const { total, groups } = viewerData;
+    const viewerData = data["dashboard/viewer"]?.[currentShop];
+    const { total, groups } = viewerData || { total: 0, groups: {} };
 
-    document.getElementById('shopName').textContent = CONFIG.SHOP_NAMES[currentShop];
-    document.getElementById('date').textContent = `Data for ${date}`;
+    // Header
+    const shopIcons = { "nimman-connex": "N", "one-nimman": "O", "maya-mall": "M" };
+    const shopIconEl = document.getElementById("shopIcon");
+    if (shopIconEl) shopIconEl.textContent = shopIcons[currentShop] || "S";
 
-    document.getElementById('totalValue').textContent = formatNumber(total);
+    document.getElementById("shopName").textContent = CONFIG.SHOP_NAMES[currentShop];
+    document.getElementById("date").textContent = date;
 
-    document.getElementById('maleCount').textContent = formatNumber(groups.male.count);
-    document.getElementById('malePercent').textContent = `${groups.male.percent}%`;
+    // Total viewers
+    document.getElementById("totalValue").textContent = formatNumber(total || 0);
 
-    document.getElementById('femaleCount').textContent = formatNumber(groups.female.count);
-    document.getElementById('femalePercent').textContent = `${groups.female.percent}%`;
+    // Safe group fallbacks
+    const male = groups?.male || { count: 0, percent: 0 };
+    const female = groups?.female || { count: 0, percent: 0 };
+    const adult = groups?.adult || { count: 0, percent: 0 };
+    const elderly = groups?.elderly || { count: 0, percent: 0 };
+    const child = groups?.child || { count: 0, percent: 0 };
 
-    document.getElementById('adultCount').textContent = formatNumber(groups.adult.count);
-    document.getElementById('adultPercent').textContent = `${groups.adult.percent}%`;
+    // Gender numbers
+    document.getElementById("maleCount").textContent = formatNumber(male.count || 0);
+    document.getElementById("malePercent").textContent = `${clampPercent(male.percent)}%`;
 
-    document.getElementById('elderlyCount').textContent = formatNumber(groups.elderly.count);
-    document.getElementById('elderlyPercent').textContent = `${groups.elderly.percent}%`;
+    document.getElementById("femaleCount").textContent = formatNumber(female.count || 0);
+    document.getElementById("femalePercent").textContent = `${clampPercent(female.percent)}%`;
 
-    document.getElementById('childCount').textContent = formatNumber(groups.child.count);
-    document.getElementById('childPercent').textContent = `${groups.child.percent}%`;
+    // Gender bar widths
+    const maleBar = document.getElementById("maleBar");
+    const femaleBar = document.getElementById("femaleBar");
+
+    if (maleBar) maleBar.style.width = `${clampPercent(male.percent)}%`;
+    if (femaleBar) femaleBar.style.width = `${clampPercent(female.percent)}%`;
+
+    // Age groups
+    document.getElementById("adultCount").textContent = formatNumber(adult.count || 0);
+    document.getElementById("adultPercent").textContent = `${clampPercent(adult.percent)}%`;
+
+    document.getElementById("elderlyCount").textContent = formatNumber(elderly.count || 0);
+    document.getElementById("elderlyPercent").textContent = `${clampPercent(elderly.percent)}%`;
+
+    document.getElementById("childCount").textContent = formatNumber(child.count || 0);
+    document.getElementById("childPercent").textContent = `${clampPercent(child.percent)}%`;
+}
+
+function clampPercent(p) {
+    const n = Number(p);
+    if (!Number.isFinite(n)) return 0;
+    return Math.max(0, Math.min(100, n));
 }
 
 function showError(message) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('error').style.display = 'block';
-    document.getElementById('errorMessage').textContent = message;
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("error").style.display = "block";
+    document.getElementById("errorMessage").textContent = message;
 }
 
 init();

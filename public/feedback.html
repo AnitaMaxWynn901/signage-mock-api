@@ -2,69 +2,252 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Feedback - Smart Signage</title>
-    <link rel="stylesheet" href="../style/base.css">
-    <link rel="stylesheet" href="../style/components.css">
-    <link rel="stylesheet" href="../style/pages.css">
+
+    <link rel="stylesheet" href="../style/base.css" />
+    <link rel="stylesheet" href="../style/components.css" />
+    <link rel="stylesheet" href="../style/pages.css" />
+
+    <style>
+        /* Keep your theme tokens, just refine layout */
+
+        .feedback-wrap {
+            max-width: 920px;
+            margin: 0 auto;
+        }
+
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .feedback-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .feedback-title h1 {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        .feedback-title .subtitle {
+            margin: 4px 0 0;
+            opacity: 0.85;
+        }
+
+        .success-message {
+            background: var(--surface, #fff);
+            border: 1px solid rgba(16, 185, 129, .25);
+            box-shadow: var(--shadow-sm);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin: 14px 0;
+        }
+
+        .success-message h3 {
+            margin: 0 0 6px;
+            font-size: 14px;
+        }
+
+        .success-message p {
+            margin: 0;
+            color: var(--muted, #6b7280);
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Form card */
+        .feedback-form {
+            background: var(--surface, #fff);
+            border: 1px solid rgba(17, 24, 39, .08);
+            border-radius: var(--radius, 18px);
+            box-shadow: var(--shadow-sm);
+            padding: 18px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 760px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin: 0;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--muted, #6b7280);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(17, 24, 39, .12);
+            background: var(--surface-2, #f7f7fb);
+            font-size: 14px;
+            font-weight: 650;
+            outline: none;
+        }
+
+        .form-group textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: rgba(79, 70, 229, .55);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .12);
+            background: #fff;
+        }
+
+        /* Full-width rows */
+        .span-2 {
+            grid-column: 1 / -1;
+        }
+
+        .hint {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--muted, #6b7280);
+            font-weight: 650;
+        }
+
+        /* Button */
+        .btn {
+            width: 100%;
+            border: 0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+            background: var(--primary-color, #4f46e5);
+            color: white;
+            box-shadow: var(--shadow-sm);
+            transition: transform 120ms ease, opacity 120ms ease;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="header-card">
-            <h1>Send Feedback</h1>
-            <p class="subtitle">Report an issue or send us your feedback</p>
-        </div>
+        <div class="feedback-wrap">
 
-        <div id="successMessage" class="success-message" style="display: none;">
-            <h3>✅ Success!</h3>
-            <p>Your feedback has been submitted successfully.</p>
-        </div>
+            <!-- Header card with shop icon like your other pages -->
+            <div class="header-card">
+                <div class="feedback-header">
+                    <div class="feedback-title">
+                        <div class="shop-icon" id="shopIcon">S</div>
+                        <div>
+                            <h1>Send Feedback</h1>
+                            <p class="subtitle">Report an issue or send us your feedback</p>
+                        </div>
+                    </div>
 
-        <div class="feedback-form">
-            <form id="feedbackForm">
-                <div class="form-group">
-                    <label for="type">Type</label>
-                    <select id="type" required>
-                        <option value="">Select type...</option>
-                        <option value="feedback">Feedback</option>
-                        <option value="bug">Bug Report</option>
-                        <option value="feature">Feature Request</option>
-                        <option value="other">Other</option>
-                    </select>
+                    <div class="live-badge">Live</div>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="subject">Subject</label>
-                    <input type="text" id="subject" placeholder="Brief description" required>
-                </div>
+            <div id="successMessage" class="success-message" style="display:none;">
+                <h3>✅ Success!</h3>
+                <p>Your feedback has been submitted successfully.</p>
+            </div>
 
-                <div class="form-group">
-                    <label for="message">Message</label>
-                    <textarea id="message" placeholder="Describe your feedback or issue in detail..."
-                        required></textarea>
-                </div>
+            <div class="feedback-form">
+                <form id="feedbackForm">
 
-                <div class="form-group">
-                    <label for="shop">Related Shop</label>
-                    <select id="shop">
-                        <option value="nimman-connex">Nimman Connex</option>
-                        <option value="one-nimman">One Nimman</option>
-                        <option value="maya-mall">MAYA Mall</option>
-                        <option value="all">All Shops</option>
-                    </select>
-                </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="type">Type</label>
+                            <select id="type" required>
+                                <option value="">Select type...</option>
+                                <option value="feedback">Feedback</option>
+                                <option value="bug">Bug Report</option>
+                                <option value="feature">Feature Request</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
 
-                <button type="submit" class="btn" id="submitBtn">
-                    Send Feedback
-                </button>
-            </form>
+                        <div class="form-group">
+                            <label for="shop">Related shop</label>
+                            <select id="shop">
+                                <option value="nimman-connex">Nimman Connex</option>
+                                <option value="one-nimman">One Nimman</option>
+                                <option value="maya-mall">MAYA Mall</option>
+                                <option value="all">All Shops</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group span-2">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" placeholder="Brief description" required />
+                            <div class="hint">Example: “Conversion rate looks wrong on In Store page.”</div>
+                        </div>
+
+                        <div class="form-group span-2">
+                            <label for="message">Message</label>
+                            <textarea id="message" placeholder="Describe your feedback or issue in detail..."
+                                required></textarea>
+                            <div class="hint">Tip: include date, shop, and what you expected vs what happened.</div>
+                        </div>
+
+                        <div class="span-2">
+                            <button type="submit" class="btn" id="submitBtn">Send Feedback</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
         </div>
     </div>
 
     <script src="../scripts/config.js"></script>
     <script src="../scripts/feedback.js"></script>
+
+    <script>
+        // tiny UI improvement: show correct shop icon using your stored shop
+        (function () {
+            const shop = (localStorage.getItem('selectedShop') || 'nimman-connex');
+            const icons = { 'nimman-connex': 'N', 'one-nimman': 'O', 'maya-mall': 'M' };
+            const el = document.getElementById('shopIcon');
+            if (el) el.textContent = icons[shop] || 'S';
+        })();
+    </script>
 </body>
 
 </html>

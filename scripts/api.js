@@ -37,6 +37,10 @@ async function getViewer(date, shopname) {
     return await fetchData(CONFIG.ENDPOINTS.DASHBOARD_VIEWER, 'POST', { date, shopname });
 }
 
+async function getCrowd(date, shopname) {
+    return await fetchData(CONFIG.ENDPOINTS.PROXY_CROWD, 'POST', { date, shopname });
+}
+
 function getTodayDate() {
     return new Date().toISOString().split('T')[0];
 }

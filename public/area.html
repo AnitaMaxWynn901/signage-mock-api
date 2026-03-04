@@ -2,47 +2,323 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Area - Smart Signage</title>
-    <link rel="stylesheet" href="../style/base.css">
-    <link rel="stylesheet" href="../style/components.css">
+
+    <link rel="stylesheet" href="../style/base.css" />
+    <link rel="stylesheet" href="../style/components.css" />
+
+    <style>
+        /* Page-only */
+
+        .hero {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 18px;
+            overflow: hidden;
+            position: relative;
+            min-height: 260px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            left: -40px;
+            top: -40px;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(22, 163, 74, .14), transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            right: -60px;
+            bottom: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(22, 163, 74, .10), transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: #ecfdf5;
+            border: 1px solid rgba(16, 185, 129, .22);
+            color: #065f46;
+            font-weight: 900;
+            margin: 0 auto 10px;
+        }
+
+        .hero-kicker {
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--muted);
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .hero-title {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .hero-number {
+            font-size: 84px;
+            font-weight: 950;
+            letter-spacing: -0.04em;
+            color: #16a34a;
+            line-height: 1;
+        }
+
+        .hero-unit {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 800;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        @media (max-width: 760px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .detail-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .detail-left .label {
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--muted);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .detail-left .value {
+            font-size: 34px;
+            font-weight: 950;
+            letter-spacing: -0.02em;
+            margin-top: 8px;
+        }
+
+        .detail-left .sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 6px;
+            font-weight: 700;
+        }
+
+        .detail-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            display: grid;
+            place-items: center;
+            font-weight: 900;
+            color: var(--muted);
+            flex-shrink: 0;
+        }
+
+        .sensor-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 16px;
+            margin-top: 14px;
+        }
+
+        .sensor-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-top: 1px solid rgba(17, 24, 39, .06);
+        }
+
+        .sensor-row:first-child {
+            border-top: none;
+            padding-top: 4px;
+        }
+
+        .sensor-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .sensor-name small {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .sensor-dot {
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: #ecfdf5;
+            border: 1px solid rgba(16, 185, 129, .22);
+            color: #065f46;
+            font-weight: 900;
+        }
+
+        .sensor-val {
+            font-size: 13px;
+            font-weight: 950;
+            color: #065f46;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
+
+        <!-- Header consistent with our theme -->
         <div class="header-card">
-            <h1 id="shopName">Loading...</h1>
-            <p class="subtitle" id="date">Fetching data...</p>
+            <div class="shop-icon" id="shopIcon">N</div>
+
+            <div class="shop-info">
+                <h1 id="shopName">Loading...</h1>
+                <p class="subtitle">Area Visitors</p>
+
+                <div class="header-meta">
+                    <div>📅 <span id="date">Loading...</span></div>
+                    <div>🕐 Full Day Data</div>
+                </div>
+            </div>
+
+            <div class="live-badge">Live</div>
         </div>
 
         <div class="date-selector">
-            <input type="date" id="dateInput">
+            <input type="date" id="dateInput" />
         </div>
 
         <div id="loading" class="loading">
-            <h2>📍 Loading Area Data...</h2>
+            <h2>Loading Area Data...</h2>
         </div>
 
-        <div id="error" class="error" style="display: none;">
-            <h3>❌ Error</h3>
+        <div id="error" class="error" style="display:none;">
+            <h3>Error</h3>
             <p id="errorMessage"></p>
         </div>
 
-        <div id="statsContainer" style="display: none;">
-            <div class="circular-stat mb-lg">
-                <div class="circle">
-                    <div class="circle-icon">📍</div>
-                    <div class="circle-value" id="areaCount">-</div>
+        <div id="statsContainer" style="display:none;">
+
+            <div class="section-header">Area</div>
+
+            <div class="hero">
+                <div>
+                    <div class="hero-badge">📍</div>
+                    <div class="hero-kicker">Area</div>
+                    <div class="hero-title">Number of people in the area</div>
+                    <div class="hero-number" id="areaCount">-</div>
+                    <div class="hero-unit">People</div>
                 </div>
-                <div class="circle-label">AREA VISITORS<br>จำนวนผู้เยี่ยมชมในพื้นที่</div>
             </div>
 
-            <div class="stat-card">
-                <div class="icon">🏙️</div>
-                <div class="label">District Total<br>ยอดรวมทั้งหมด</div>
-                <div class="value" id="districtCount">-</div>
+            <div class="section-header">Detail</div>
+
+            <div class="detail-grid">
+                <div class="detail-card">
+                    <div class="detail-left">
+                        <div class="label">District</div>
+                        <div class="value" id="districtCount">-</div>
+                        <div class="sub">People in the whole district</div>
+                    </div>
+                    <div class="detail-icon">🏙️</div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-left">
+                        <div class="label">Data Cycle</div>
+                        <div class="value" id="cycleText">Full day</div>
+                        <div class="sub" id="lastUpdated">Last updated: -</div>
+                    </div>
+                    <div class="detail-icon">🕒</div>
+                </div>
             </div>
+
+            <div class="section-header">Sensor information</div>
+
+            <!-- Optional UI: static placeholders (can wire later if you add API data) -->
+            <div class="sensor-panel">
+                <div class="sensor-row">
+                    <div class="sensor-name">
+                        <div class="sensor-dot">🌡️</div>
+                        <div>
+                            Temperature
+                            <small>Environment</small>
+                        </div>
+                    </div>
+                    <div class="sensor-val" id="tempVal">-</div>
+                </div>
+
+                <div class="sensor-row">
+                    <div class="sensor-name">
+                        <div class="sensor-dot">💧</div>
+                        <div>
+                            Humidity
+                            <small>Environment</small>
+                        </div>
+                    </div>
+                    <div class="sensor-val" id="humidityVal">-</div>
+                </div>
+
+                <div class="sensor-row">
+                    <div class="sensor-name">
+                        <div class="sensor-dot">🧭</div>
+                        <div>
+                            Pressure
+                            <small>Environment</small>
+                        </div>
+                    </div>
+                    <div class="sensor-val" id="pressureVal">-</div>
+                </div>
+            </div>
+
         </div>
     </div>
 

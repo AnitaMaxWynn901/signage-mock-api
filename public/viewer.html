@@ -5,15 +5,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Viewer - Smart Signage</title>
+
     <link rel="stylesheet" href="../style/base.css">
     <link rel="stylesheet" href="../style/components.css">
+
+    <style>
+        .viewer-hero {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .viewer-total {
+            font-size: 72px;
+            font-weight: 900;
+            color: #f97316;
+        }
+
+        .viewer-label {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .gender-bar {
+            margin-top: 14px;
+            height: 18px;
+            background: #e5e7eb;
+            border-radius: 999px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .gender-male {
+            background: #3b82f6;
+            height: 100%;
+        }
+
+        .gender-female {
+            background: #ec4899;
+            height: 100%;
+        }
+
+        .gender-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-weight: 700;
+        }
+
+        .age-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .age-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .age-value {
+            font-size: 30px;
+            font-weight: 900;
+        }
+
+        .age-percent {
+            font-size: 12px;
+            color: var(--muted);
+        }
+    </style>
 </head>
 
 <body>
+
     <div class="container">
+
         <div class="header-card">
-            <h1 id="shopName">Loading...</h1>
-            <p class="subtitle" id="date">Fetching data...</p>
+            <div class="shop-icon" id="shopIcon">N</div>
+
+            <div class="shop-info">
+                <h1 id="shopName">Loading...</h1>
+                <p class="subtitle">Viewer Analytics</p>
+
+                <div class="header-meta">
+                    <div>📅 <span id="date">Fetching...</span></div>
+                    <div>🕐 Full Day Data</div>
+                </div>
+            </div>
+
+            <div class="live-badge">Live</div>
         </div>
 
         <div class="date-selector">
@@ -24,57 +113,70 @@
             <h2>👁️ Loading Viewer Data...</h2>
         </div>
 
-        <div id="error" class="error" style="display: none;">
-            <h3>❌ Error</h3>
+        <div id="error" class="error" style="display:none;">
+            <h3>Error</h3>
             <p id="errorMessage"></p>
         </div>
 
-        <div id="statsContainer" style="display: none;">
-            <div class="demographics mb-lg">
-                <div class="total">
-                    <div class="total-value" id="totalValue">-</div>
-                    <div class="total-label">Total Viewers<br>ผู้ชมทั้งหมด</div>
+        <div id="statsContainer" style="display:none;">
+
+            <div class="section-header">Viewers</div>
+
+            <div class="viewer-hero">
+                <div class="viewer-label">Total viewers</div>
+                <div class="viewer-total" id="totalValue">-</div>
+                <div class="viewer-label">People</div>
+            </div>
+
+            <div class="section-header">Gender proportion</div>
+
+            <div class="gender-bar">
+                <div class="gender-male" id="maleBar"></div>
+                <div class="gender-female" id="femaleBar"></div>
+            </div>
+
+            <div class="gender-row">
+                <div style="color:#3b82f6">
+                    ♂ Male: <span id="maleCount">-</span> (<span id="malePercent">-%</span>)
                 </div>
 
-                <h3 class="mb-md">Gender Distribution</h3>
-                <div class="demo-grid mb-lg">
-                    <div class="demo-item male">
-                        <div class="demo-value" id="maleCount">-</div>
-                        <div class="demo-label">Male<br>ชาย</div>
-                        <div class="demo-percent" id="malePercent">-%</div>
-                    </div>
-                    <div class="demo-item female">
-                        <div class="demo-value" id="femaleCount">-</div>
-                        <div class="demo-label">Female<br>หญิง</div>
-                        <div class="demo-percent" id="femalePercent">-%</div>
-                    </div>
-                </div>
-
-                <h3 class="mb-md">Age Distribution</h3>
-                <div class="demo-grid">
-                    <div class="demo-item adult">
-                        <div class="demo-value" id="adultCount">-</div>
-                        <div class="demo-label">Adult<br>ผู้ใหญ่</div>
-                        <div class="demo-percent" id="adultPercent">-%</div>
-                    </div>
-                    <div class="demo-item elderly">
-                        <div class="demo-value" id="elderlyCount">-</div>
-                        <div class="demo-label">Elderly<br>ผู้สูงอายุ</div>
-                        <div class="demo-percent" id="elderlyPercent">-%</div>
-                    </div>
-                    <div class="demo-item child">
-                        <div class="demo-value" id="childCount">-</div>
-                        <div class="demo-label">Child<br>เด็ก</div>
-                        <div class="demo-percent" id="childPercent">-%</div>
-                    </div>
+                <div style="color:#ec4899">
+                    ♀ Female: <span id="femaleCount">-</span> (<span id="femalePercent">-%</span>)
                 </div>
             </div>
+
+            <div class="section-header">Age groups</div>
+
+            <div class="age-grid">
+
+                <div class="age-card">
+                    <div>Adult</div>
+                    <div class="age-value" style="color:#16a34a" id="adultCount">-</div>
+                    <div class="age-percent" id="adultPercent">-%</div>
+                </div>
+
+                <div class="age-card">
+                    <div>Elderly</div>
+                    <div class="age-value" style="color:#6b7280" id="elderlyCount">-</div>
+                    <div class="age-percent" id="elderlyPercent">-%</div>
+                </div>
+
+                <div class="age-card">
+                    <div>Children</div>
+                    <div class="age-value" style="color:#f59e0b" id="childCount">-</div>
+                    <div class="age-percent" id="childPercent">-%</div>
+                </div>
+
+            </div>
+
         </div>
+
     </div>
 
     <script src="../scripts/config.js"></script>
     <script src="../scripts/api.js"></script>
     <script src="../scripts/viewer.js"></script>
+
 </body>
 
 </html>
