@@ -10,6 +10,14 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+const path = require("path");
+
+// Serve HTML files in /public at /public/...
+app.use("/public", express.static(path.join(__dirname, "public")));
+
+app.use("/style", express.static(path.join(__dirname, "style")));
+app.use("/scripts", express.static(path.join(__dirname, "scripts")));
+
 const shopInfo = require('./JSONs/shop-info.json');
 const dashboardSummary = require('./JSONs/dashboard-summary.json');
 const dashboardSummaryHourly = require('./JSONs/dashboard-summary-hourly.json');
