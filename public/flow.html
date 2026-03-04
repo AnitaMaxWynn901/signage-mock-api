@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow - Smart Signage</title>
+    <link rel="stylesheet" href="../style/base.css">
+    <link rel="stylesheet" href="../style/components.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-card">
+            <h1 id="shopName">Loading...</h1>
+            <p class="subtitle" id="date">Fetching data...</p>
+        </div>
+
+        <div class="date-selector">
+            <input type="date" id="dateInput">
+        </div>
+
+        <div id="loading" class="loading">
+            <h2>🚶 Loading Flow Data...</h2>
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+            <h3>❌ Error</h3>
+            <p id="errorMessage"></p>
+        </div>
+
+        <div id="statsContainer" style="display: none;">
+            <!-- Movement Totals -->
+            <div class="stats-grid mb-lg">
+                <div class="stat-card">
+                    <div class="icon">📥</div>
+                    <div class="label">Inbound<br>เข้า</div>
+                    <div class="value" id="inbound" style="color: var(--info-color);">-</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="icon">🔄</div>
+                    <div class="label">Internal<br>ภายใน</div>
+                    <div class="value" id="internal" style="color: var(--warning-color);">-</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="icon">📤</div>
+                    <div class="label">Outbound<br>ออก</div>
+                    <div class="value" id="outbound" style="color: var(--danger-color);">-</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="icon">📊</div>
+                    <div class="label">Overall<br>รวม</div>
+                    <div class="value" id="overall" style="color: var(--success-color);">-</div>
+                </div>
+            </div>
+
+            <!-- Category Breakdown -->
+            <div class="demographics">
+                <h3 class="mb-md">Category Flow</h3>
+                <div id="categoryFlow"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/api.js"></script>
+    <script src="../scripts/flow.js"></script>
+</body>
+
+</html>

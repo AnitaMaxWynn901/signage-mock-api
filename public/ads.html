@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADS Display - Smart Signage</title>
+    <link rel="stylesheet" href="../style/base.css">
+    <link rel="stylesheet" href="../style/components.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-card">
+            <h1 id="shopName">Loading...</h1>
+            <p class="subtitle" id="date">Fetching data...</p>
+        </div>
+
+        <div class="date-selector">
+            <input type="date" id="dateInput">
+        </div>
+
+        <div id="loading" class="loading">
+            <h2>📺 Loading ADS Data...</h2>
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+            <h3>❌ Error</h3>
+            <p id="errorMessage"></p>
+        </div>
+
+        <div id="statsContainer" style="display: none;">
+            <div class="demographics mb-lg">
+                <div class="total">
+                    <div class="total-value" id="totalValue">-</div>
+                    <div class="total-label">Total Plays</div>
+                </div>
+
+                <h3 class="mb-md">Gender Distribution</h3>
+                <div class="demo-grid mb-lg">
+                    <div class="demo-item male">
+                        <div class="demo-value" id="maleCount">-</div>
+                        <div class="demo-label">Male</div>
+                        <div class="demo-percent" id="malePercent">-%</div>
+                    </div>
+                    <div class="demo-item female">
+                        <div class="demo-value" id="femaleCount">-</div>
+                        <div class="demo-label">Female</div>
+                        <div class="demo-percent" id="femalePercent">-%</div>
+                    </div>
+                </div>
+
+                <h3 class="mb-md">Age Distribution</h3>
+                <div class="demo-grid">
+                    <div class="demo-item adult">
+                        <div class="demo-value" id="adultCount">-</div>
+                        <div class="demo-label">Adult</div>
+                        <div class="demo-percent" id="adultPercent">-%</div>
+                    </div>
+                    <div class="demo-item elderly">
+                        <div class="demo-value" id="elderlyCount">-</div>
+                        <div class="demo-label">Elderly</div>
+                        <div class="demo-percent" id="elderlyPercent">-%</div>
+                    </div>
+                    <div class="demo-item child">
+                        <div class="demo-value" id="childCount">-</div>
+                        <div class="demo-label">Child</div>
+                        <div class="demo-percent" id="childPercent">-%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/api.js"></script>
+    <script src="../scripts/ads.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary - Smart Signage</title>
+    <link rel="stylesheet" href="../style/base.css">
+    <link rel="stylesheet" href="../style/components.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-card">
+            <h1 id="shopName">Loading...</h1>
+            <p class="subtitle" id="date">Fetching data...</p>
+        </div>
+
+        <div class="date-selector">
+            <input type="date" id="dateInput">
+        </div>
+
+        <div id="loading" class="loading">
+            <h2>📊 Loading Summary...</h2>
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+            <h3>❌ Error</h3>
+            <p id="errorMessage"></p>
+        </div>
+
+        <div id="statsContainer" style="display: none;">
+            <div class="circular-stat mb-lg">
+                <div class="circle">
+                    <div class="circle-icon">🏙️</div>
+                    <div class="circle-value" id="districtCount">-</div>
+                </div>
+                <div class="circle-label">DISTRICTS TOTAL</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="icon">📍</div>
+                    <div class="label">Area</div>
+                    <div class="value" id="areaCount">-</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="icon">🏪</div>
+                    <div class="label">Front Store</div>
+                    <div class="value" id="frontStore">-</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="icon">🛍️</div>
+                    <div class="label">In Store</div>
+                    <div class="value" id="inStore">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/api.js"></script>
+    <script src="../scripts/summary.js"></script>
+</body>
+
+</html>
