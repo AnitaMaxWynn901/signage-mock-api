@@ -4,10 +4,6 @@ const form = document.getElementById('feedbackForm');
 const submitBtn = document.getElementById('submitBtn');
 const successMessage = document.getElementById('successMessage');
 
-// Load current shop into dropdown
-const shopSelect = document.getElementById('shop');
-shopSelect.value = getCurrentShop();
-
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -15,7 +11,10 @@ form.addEventListener('submit', async (e) => {
         type: document.getElementById('type').value,
         subject: document.getElementById('subject').value,
         message: document.getElementById('message').value,
-        shop: document.getElementById('shop').value,
+
+        // mentor: shop already provided the feedback, so no need for "related shop"
+        shop: getCurrentShop(),
+
         timestamp: new Date().toISOString()
     };
 
