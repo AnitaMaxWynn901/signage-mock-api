@@ -301,7 +301,120 @@ function exportCSV() {
 }
 
 function importCSV() {
-    alert('Import CSV: connect a file input and POST to the API when backend supports it.');
+    // Create a hidden file input and trigger it
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv,text/csv';
+
+    input.addEventListener('change', () => {
+        const file = input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const text = e.target.result;
+                const imported = parseCSV(text);
+
+                if (!imported.length) {
+                    alert('No valid rows found in the CSV file.');
+                    return;
+                }
+
+                // Merge: update existing by shop_id, append new ones
+                let added = 0, updated = 0;
+                imported.forEach(row => {
+                    const existing = allShops.find(s => s.shop_id === row.shop_id);
+                    if (existing) {
+                        Object.assign(existing, row);
+                        updated++;
+                    } else {
+                        allShops.push(row);
+                        added++;
+                    }
+                });
+
+                populateCategoryFilter();
+                applyFilters();
+                renderStats();
+
+                alert(`✅ Import complete!\n• ${added} new shop(s) added\n• ${updated} shop(s) updated`);
+            } catch (err) {
+                alert('Failed to parse CSV: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
+    });
+
+    input.click();
+}
+
+function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    if (lines.length < 2) return [];
+
+    // Normalise header names (lowercase, trim)
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/^"|"$/g, ''));
+
+    // Map CSV column names → internal field names
+    const fieldMap = {
+        node_id: 'node_id',
+        shop_id: 'shop_id',
+        shop_name: 'shop_name',
+        'name of the restaurant': 'shop_name',
+        name: 'shop_name',
+        location: 'location',
+        coordinates: 'location',
+        devices_count: 'devices_count',
+        equipment: 'devices_count',
+        devices: 'devices_count',
+        phone_number: 'phone_number',
+        phone: 'phone_number',
+        category: 'category',
+        categories: 'category',
+        status: 'status',
+        active: 'active',
+        created_at: 'created_at',
+    };
+
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        // Handle quoted values with commas inside
+        const values = [];
+        let inQuote = false, cur = '';
+        for (const ch of line + ',') {
+            if (ch === '"') { inQuote = !inQuote; }
+            else if (ch === ',' && !inQuote) { values.push(cur.trim()); cur = ''; }
+            else { cur += ch; }
+        }
+
+        const obj = {
+            node_id: '', shop_id: '', shop_name: '', location: '',
+            devices_count: 0, phone_number: '', category: '',
+            status: 'Active', active: true, created_at: new Date().toISOString()
+        };
+
+        headers.forEach((h, idx) => {
+            const field = fieldMap[h];
+            if (!field) return;
+            const val = (values[idx] || '').replace(/^"|"$/g, '').trim();
+            if (field === 'devices_count') obj[field] = parseInt(val) || 0;
+            else if (field === 'active') obj[field] = val.toLowerCase() !== 'false' && val !== '0';
+            else obj[field] = val;
+        });
+
+        // Derive active from status if no explicit active column
+        if (!headers.includes('active') && obj.status) {
+            obj.active = obj.status.toLowerCase() === 'active';
+        }
+
+        if (obj.shop_name) rows.push(obj);
+    }
+
+    return rows;
 }
 
 // ── Helpers ──
