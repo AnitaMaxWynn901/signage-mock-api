@@ -396,6 +396,77 @@ app.delete('/api/v3/messages/:id', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+// ════════════════════════════════════════════════════════
+// USERS ENDPOINTS — add these to your index.js
+// ════════════════════════════════════════════════════════
+
+// GET /api/v3/users — get all users
+app.get('/api/v3/users', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .order('created_at', { ascending: true });
+        if (error) throw error;
+        res.json(data); // plain array
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/v3/users — add a new user
+app.post('/api/v3/users', async (req, res) => {
+    try {
+        const { email, role } = req.body;
+        if (!email) return res.status(400).json({ error: 'email is required' });
+
+        const { data, error } = await supabase
+            .from('users')
+            .insert([{ email, role: role || 'user', active: true, is_self: false }])
+            .select()
+            .single();
+        if (error) throw error;
+        res.status(201).json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// PATCH /api/v3/users/:id — update role or active status
+app.patch('/api/v3/users/:id', async (req, res) => {
+    try {
+        const { role, active } = req.body;
+        const updates = {};
+        if (role !== undefined) updates.role = role;
+        if (active !== undefined) updates.active = active;
+
+        const { data, error } = await supabase
+            .from('users')
+            .update(updates)
+            .eq('id', req.params.id)
+            .select()
+            .single();
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// DELETE /api/v3/users/:id — remove a user
+app.delete('/api/v3/users/:id', async (req, res) => {
+    try {
+        const { error } = await supabase
+            .from('users')
+            .delete()
+            .eq('id', req.params.id);
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 // ============================================
 // START SERVER
 // ============================================

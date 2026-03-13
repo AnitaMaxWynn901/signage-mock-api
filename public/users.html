@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Users & Roles - Admin</title>
+
+    <link rel="stylesheet" href="../style/base.css" />
+    <link rel="stylesheet" href="../style/components.css" />
+
+    <style>
+        /* ── Stat cards ── */
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 700px) {
+            .stat-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 16px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .stat-card.total::before {
+            background: var(--primary);
+        }
+
+        .stat-card.admins::before {
+            background: var(--warning);
+        }
+
+        .stat-card.active::before {
+            background: var(--success);
+        }
+
+        .stat-card .s-label {
+            font-size: 11px;
+            font-weight: 900;
+            color: var(--muted);
+            letter-spacing: .10em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .stat-card .s-value {
+            font-size: 38px;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-card.total .s-value {
+            color: var(--primary);
+        }
+
+        .stat-card.admins .s-value {
+            color: var(--warning);
+        }
+
+        .stat-card.active .s-value {
+            color: var(--success);
+        }
+
+        .stat-card .s-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            display: grid;
+            place-items: center;
+            font-size: 16px;
+        }
+
+        /* ── Toolbar ── */
+        .toolbar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 12px 14px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .toolbar input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            outline: none;
+            font-family: var(--font);
+        }
+
+        .toolbar input[type="text"]:focus {
+            border-color: rgba(79, 70, 229, .4);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .08);
+        }
+
+        .toolbar select {
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            outline: none;
+            font-family: var(--font);
+            cursor: pointer;
+        }
+
+        .tbtn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text);
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: var(--font);
+            transition: background .12s;
+        }
+
+        .tbtn:hover {
+            background: #f0f1ff;
+        }
+
+        .tbtn.primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .tbtn.primary:hover {
+            background: #4338ca;
+        }
+
+        /* ── Table ── */
+        .table-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--muted);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            background: var(--surface-2);
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(17, 24, 39, .05);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--surface-2);
+        }
+
+        td {
+            padding: 13px 16px;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        /* avatar */
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: 14px;
+            font-weight: 800;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .user-avatar.admin {
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+        }
+
+        .user-avatar.user {
+            background: var(--surface-2);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        .email-cell {
+            font-weight: 700;
+        }
+
+        .self-tag {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--info);
+            background: rgba(14, 165, 233, .10);
+            border: 1px solid rgba(14, 165, 233, .20);
+            padding: 2px 7px;
+            border-radius: 999px;
+            margin-left: 6px;
+        }
+
+        /* role badge */
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .role-badge.admin {
+            background: rgba(245, 158, 11, .12);
+            color: #b45309;
+            border: 1px solid rgba(245, 158, 11, .25);
+        }
+
+        .role-badge.user {
+            background: var(--surface-2);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        /* toggle */
+        .toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle {
+            position: relative;
+            width: 38px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+
+        .toggle input {
+            display: none;
+        }
+
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            background: #d1d5db;
+            transition: background .2s;
+            cursor: pointer;
+        }
+
+        .toggle.disabled .toggle-track {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .toggle input:checked+.toggle-track {
+            background: #10b981;
+        }
+
+        .toggle-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+            transition: transform .2s;
+            pointer-events: none;
+        }
+
+        .toggle input:checked~.toggle-thumb {
+            transform: translateX(16px);
+        }
+
+        .status-label {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-label.active {
+            color: var(--success);
+        }
+
+        .status-label.inactive {
+            color: var(--muted);
+        }
+
+        .date-cell {
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        /* action buttons */
+        .act-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1px solid;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: var(--font);
+            transition: opacity .12s;
+        }
+
+        .act-btn:hover {
+            opacity: .75;
+        }
+
+        .act-btn.remove {
+            background: rgba(239, 68, 68, .08);
+            border-color: rgba(239, 68, 68, .22);
+            color: var(--danger);
+        }
+
+        /* table footer */
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(17, 24, 39, .45);
+            backdrop-filter: blur(3px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            padding: 24px;
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .modal h3 {
+            font-size: 16px;
+            font-weight: 900;
+            margin: 0 0 4px;
+        }
+
+        .modal .modal-sub {
+            font-size: 13px;
+            color: var(--muted);
+            margin: 0 0 20px;
+        }
+
+        .modal-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .modal-group label {
+            font-size: 11px;
+            font-weight: 900;
+            color: var(--muted);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .modal-group input,
+        .modal-group select {
+            padding: 11px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            outline: none;
+            font-family: var(--font);
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .modal-group input:focus,
+        .modal-group select:focus {
+            border-color: rgba(79, 70, 229, .45);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .10);
+            background: #fff;
+        }
+
+        .modal-hint {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-cancel {
+            padding: 10px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: var(--font);
+        }
+
+        .btn-cancel:hover {
+            background: #f3f4f6;
+            color: var(--text);
+        }
+
+        .btn-save {
+            padding: 10px 22px;
+            border-radius: 12px;
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: var(--font);
+        }
+
+        .btn-save:hover {
+            background: #4338ca;
+        }
+
+        .btn-save:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header-card" style="margin-bottom:20px;">
+            <div class="shop-icon">👥</div>
+            <div class="shop-info">
+                <h1>Users & Roles</h1>
+                <p class="subtitle">Manage admin panel access and permissions</p>
+            </div>
+            <div class="live-badge">Live</div>
+        </div>
+
+        <!-- Loading / Error -->
+        <div id="loading" class="loading" style="margin-bottom:16px;">
+            <h2>Loading Users...</h2>
+        </div>
+
+        <div id="error" class="error" style="display:none; margin-bottom:16px;">
+            <h3>Error</h3>
+            <p id="errorMessage"></p>
+        </div>
+
+        <div id="mainContent" style="display:none;">
+
+            <!-- Stat cards -->
+            <div class="stat-row">
+                <div class="stat-card total">
+                    <div>
+                        <div class="s-label">Total Users</div>
+                        <div class="s-value" id="statTotal">—</div>
+                    </div>
+                    <div class="s-icon">👥</div>
+                </div>
+                <div class="stat-card admins">
+                    <div>
+                        <div class="s-label">Admins</div>
+                        <div class="s-value" id="statAdmins">—</div>
+                    </div>
+                    <div class="s-icon">🛡️</div>
+                </div>
+                <div class="stat-card active">
+                    <div>
+                        <div class="s-label">Active</div>
+                        <div class="s-value" id="statActive">—</div>
+                    </div>
+                    <div class="s-icon">✅</div>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <input type="text" id="searchInput" placeholder="🔍  Search by email..." oninput="renderTable()" />
+                <select id="roleFilter" onchange="renderTable()">
+                    <option value="">All roles</option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                </select>
+                <button class="tbtn" onclick="exportCSV()">📤 Export CSV</button>
+                <button class="tbtn primary" onclick="openModal()">+ Add User</button>
+            </div>
+
+            <!-- Table -->
+            <div class="table-panel">
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="table-footer">
+                    <span id="footerLabel">Showing 0 of 0 users</span>
+                </div>
+            </div>
+
+        </div><!-- /mainContent -->
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3>Add User</h3>
+            <p class="modal-sub">Add a new member to the admin panel</p>
+
+            <div class="modal-group">
+                <label>Email *</label>
+                <input type="email" id="fEmail" placeholder="user@nimman.com" />
+            </div>
+
+            <div class="modal-group">
+                <label>Role</label>
+                <select id="fRole">
+                    <option value="user">👤 User — view only</option>
+                    <option value="admin">🛡️ Admin — full access</option>
+                </select>
+                <div class="modal-hint">Admins can manage shops, devices, and messages. Users can only view.</div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-save" id="saveBtn" onclick="saveUser()">Add User</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/users.js"></script>
+</body>
+
+</html>
