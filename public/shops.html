@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Management - Smart Signage</title>
+    <link rel="stylesheet" href="../style/base.css">
+    <link rel="stylesheet" href="../style/components.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header-card">
+            <div class="shop-icon">🏪</div>
+            <div class="shop-info">
+                <h1>Shop Management</h1>
+                <p class="subtitle">Manage all registered shops</p>
+                <div class="header-meta">
+                    <div>
+                        <span>📊</span>
+                        <span id="totalShops">0 shops</span>
+                    </div>
+                </div>
+            </div>
+            <div class="live-badge">Admin</div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <h2>🏪 Loading Shops...</h2>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="error" style="display:none;">
+            <h3>❌ Error</h3>
+            <p id="errorMessage"></p>
+        </div>
+
+        <!-- Shops Container -->
+        <div id="shopsContainer" style="display:none;">
+            <div class="section-header">All Shops</div>
+
+            <!-- Shops Table -->
+            <div class="panel">
+                <table id="shopsTable" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <th
+                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
+                                NODE ID</th>
+                            <th
+                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
+                                SHOP ID</th>
+                            <th
+                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
+                                SHOP NAME</th>
+                            <th
+                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
+                                LOCATION</th>
+                            <th
+                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
+                                DEVICES</th>
+                            <th
+                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
+                                PHONE</th>
+                            <th
+                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
+                                CATEGORY</th>
+                            <th
+                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
+                                STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shopsTableBody">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/shops.js"></script>
+</body>
+
+</html>

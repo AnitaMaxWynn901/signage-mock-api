@@ -18,6 +18,12 @@ app.use("/public", express.static(path.join(__dirname, "public")));
 app.use("/style", express.static(path.join(__dirname, "style")));
 app.use("/scripts", express.static(path.join(__dirname, "scripts")));
 
+const { createClient } = require('@supabase/supabase-js');
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY
+);
+
 const shopInfo = require('./JSONs/shop-info.json');
 const dashboardSummary = require('./JSONs/dashboard-summary.json');
 const dashboardSummaryHourly = require('./JSONs/dashboard-summary-hourly.json');
@@ -118,26 +124,26 @@ app.get('/api/v3/shop-info', (req, res) => {
 // 2. DASHBOARD SUMMARY
 // ============================================
 app.post('/api/v3/dashboard/summary', (req, res) => {
-  console.log('📊 POST /api/v3/dashboard/summary');
+    console.log('📊 POST /api/v3/dashboard/summary');
 
-  const date = requireDate(req, res);
-  if (!date) return;
+    const date = requireDate(req, res);
+    if (!date) return;
 
-  const { shopname } = req.body;
-  return respondWithOptionalShopFilter(res, dashboardSummary, "dashboard/summary", date, shopname);
+    const { shopname } = req.body;
+    return respondWithOptionalShopFilter(res, dashboardSummary, "dashboard/summary", date, shopname);
 });
 
 // ============================================
 // 3. DASHBOARD ADS
 // ============================================
 app.post('/api/v3/dashboard/ads', (req, res) => {
-  console.log('📺 POST /api/v3/dashboard/ads');
+    console.log('📺 POST /api/v3/dashboard/ads');
 
-  const date = requireDate(req, res);
-  if (!date) return;
+    const date = requireDate(req, res);
+    if (!date) return;
 
-  const { shopname } = req.body;
-  return respondWithOptionalShopFilter(res, dashboardAds, "dashboard/ads", date, shopname);
+    const { shopname } = req.body;
+    return respondWithOptionalShopFilter(res, dashboardAds, "dashboard/ads", date, shopname);
 });
 
 // ============================================
@@ -156,13 +162,13 @@ app.post('/api/v3/reset', (req, res) => {
 // 5. DASHBOARD VIEWER
 // ============================================
 app.post('/api/v3/dashboard/summary-hourly', (req, res) => {
-  console.log('👁️ POST /api/v3/dashboard/summary-hourly');
+    console.log('👁️ POST /api/v3/dashboard/summary-hourly');
 
-  const date = requireDate(req, res);
-  if (!date) return;
+    const date = requireDate(req, res);
+    if (!date) return;
 
-  const { shopname } = req.body;
-  return respondWithOptionalShopFilter(res, dashboardSummaryHourly, "dashboard/summary-hourly", date, shopname);
+    const { shopname } = req.body;
+    return respondWithOptionalShopFilter(res, dashboardSummaryHourly, "dashboard/summary-hourly", date, shopname);
 });
 
 
@@ -170,78 +176,105 @@ app.post('/api/v3/dashboard/summary-hourly', (req, res) => {
 // 5. DASHBOARD VIEWER
 // ============================================
 app.post('/api/v3/dashboard/viewer', (req, res) => {
-  console.log('👁️ POST /api/v3/dashboard/viewer');
+    console.log('👁️ POST /api/v3/dashboard/viewer');
 
-  const date = requireDate(req, res);
-  if (!date) return;
+    const date = requireDate(req, res);
+    if (!date) return;
 
-  const { shopname } = req.body;
-  return respondWithOptionalShopFilter(res, dashboardViewer, "dashboard/viewer", date, shopname);
+    const { shopname } = req.body;
+    return respondWithOptionalShopFilter(res, dashboardViewer, "dashboard/viewer", date, shopname);
 });
 
 // ============================================
 // 6. PROXY CROWD
 // ============================================
 app.post('/api/v3/proxy/crowd', (req, res) => {
-  console.log('👥 POST /api/v3/proxy/crowd');
+    console.log('👥 POST /api/v3/proxy/crowd');
 
-  const date = requireDate(req, res);
-  if (!date) return;
+    const date = requireDate(req, res);
+    if (!date) return;
 
-  const { shopname } = req.body;
-  return respondWithOptionalShopFilter(res, proxyCrowd, "proxy/crowd", date, shopname);
+    const { shopname } = req.body;
+    return respondWithOptionalShopFilter(res, proxyCrowd, "proxy/crowd", date, shopname);
 });
 
 // ============================================
 // 7. PROXY CROWD BATCH
 // ============================================
 app.post('/api/v3/proxy/crowd-batch', (req, res) => {
-  console.log('📦 POST /api/v3/proxy/crowd-batch');
+    console.log('📦 POST /api/v3/proxy/crowd-batch');
 
-  const date = requireDate(req, res);
-  if (!date) return;
+    const date = requireDate(req, res);
+    if (!date) return;
 
-  const { shopname } = req.body;
-  return respondWithOptionalShopFilter(res, proxyCrowdBatch, "proxy/crowd-batch", date, shopname);
+    const { shopname } = req.body;
+    return respondWithOptionalShopFilter(res, proxyCrowdBatch, "proxy/crowd-batch", date, shopname);
 });
 
 // ============================================
 // 8. PROXY DAILY SUMMARY
 // ============================================
 app.post('/api/v3/proxy/daily-summery', (req, res) => {
-  console.log('📅 POST /api/v3/proxy/daily-summery');
+    console.log('📅 POST /api/v3/proxy/daily-summery');
 
-  const date = requireDate(req, res);
-  if (!date) return;
+    const date = requireDate(req, res);
+    if (!date) return;
 
-  const { shopname } = req.body;
-  return respondWithOptionalShopFilter(res, proxyDailySummary, "proxy/daily-summery", date, shopname);
+    const { shopname } = req.body;
+    return respondWithOptionalShopFilter(res, proxyDailySummary, "proxy/daily-summery", date, shopname);
 });
 
 // ============================================
 // 9. PROXY DATA UNIQUE
 // ============================================
 app.post('/api/v3/proxy/dataunique', (req, res) => {
-  console.log('🔢 POST /api/v3/proxy/dataunique');
+    console.log('🔢 POST /api/v3/proxy/dataunique');
 
-  const date = requireDate(req, res);
-  if (!date) return;
+    const date = requireDate(req, res);
+    if (!date) return;
 
-  const { shopname } = req.body;
-  return respondWithOptionalShopFilter(res, proxyDataUnique, "proxy/dataunique", date, shopname);
+    const { shopname } = req.body;
+    return respondWithOptionalShopFilter(res, proxyDataUnique, "proxy/dataunique", date, shopname);
 });
 
 // ============================================
 // 10. PROXY MOVEMENT
 // ============================================
 app.post('/api/v3/proxy/movement', (req, res) => {
-  console.log('🚶 POST /api/v3/proxy/movement');
+    console.log('🚶 POST /api/v3/proxy/movement');
 
-  const date = requireDate(req, res);
-  if (!date) return;
+    const date = requireDate(req, res);
+    if (!date) return;
 
-  const { shopname } = req.body;
-  return respondWithOptionalShopFilter(res, proxyMovement, "proxy/movement", date, shopname);
+    const { shopname } = req.body;
+    return respondWithOptionalShopFilter(res, proxyMovement, "proxy/movement", date, shopname);
+});
+
+// ============================================
+// SHOP MANAGEMENT - GET ALL SHOPS
+// ============================================
+app.get('/api/v3/shops', async (req, res) => {
+    console.log('🏪 GET /api/v3/shops');
+
+    try {
+        const { data, error } = await supabase
+            .from('shops')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        res.json({
+            success: true,
+            shops: data
+        });
+    } catch (error) {
+        console.error('Supabase error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
 });
 
 // ============================================
