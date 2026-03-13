@@ -260,6 +260,142 @@ app.put('/api/v3/devices/:device_id/shops', async (req, res) => {
     }
 });
 
+
+// ════════════════════════════════════════════════════════
+// MESSAGES ENDPOINTS — add these to your index.js
+// ════════════════════════════════════════════════════════
+
+// Helper: generate next message_id like MSG-007
+async function generateMessageId(supabase) {
+    const { data } = await supabase
+        .from('messages')
+        .select('message_id')
+        .order('id', { ascending: false })
+        .limit(1);
+    if (!data || data.length === 0) return 'MSG-001';
+    const last = parseInt((data[0].message_id || 'MSG-000').split('-')[1], 10);
+    return `MSG-${String(last + 1).padStart(3, '0')}`;
+}
+
+// ── GET /api/v3/messages
+// Admin: get all messages (sorted newest first)
+// LIFF:  get messages for a specific shop ?shop_id=SH001
+app.get('/api/v3/messages', async (req, res) => {
+    try {
+        let query = supabase
+            .from('messages')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (req.query.shop_id) {
+            query = query.eq('shop_id', req.query.shop_id);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ── POST /api/v3/messages
+// Shop owner submits a new message (from feedback.html)
+app.post('/api/v3/messages', async (req, res) => {
+    try {
+        const { shop_id, shop_name, phone, subject, message } = req.body;
+        if (!subject || !message) {
+            return res.status(400).json({ error: 'subject and message are required' });
+        }
+
+        const message_id = await generateMessageId(supabase);
+
+        const { data, error } = await supabase
+            .from('messages')
+            .insert([{
+                message_id,
+                shop_id: shop_id || null,
+                shop_name: shop_name || null,
+                phone: phone || null,
+                subject,
+                message,
+                message_status: 'UNREAD',
+                admin_reply: null,
+            }])
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.status(201).json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ── PATCH /api/v3/messages/:id
+// Update message status (UNREAD → CLOSED etc.)
+app.patch('/api/v3/messages/:id', async (req, res) => {
+    try {
+        const { message_status } = req.body;
+        if (!message_status) {
+            return res.status(400).json({ error: 'message_status is required' });
+        }
+
+        const { data, error } = await supabase
+            .from('messages')
+            .update({ message_status, updated_at: new Date().toISOString() })
+            .eq('id', req.params.id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ── PATCH /api/v3/messages/:id/reply
+// Admin sends a reply — sets admin_reply and status → REPLIED
+app.patch('/api/v3/messages/:id/reply', async (req, res) => {
+    try {
+        const { admin_reply } = req.body;
+        if (!admin_reply) {
+            return res.status(400).json({ error: 'admin_reply is required' });
+        }
+
+        const { data, error } = await supabase
+            .from('messages')
+            .update({
+                admin_reply,
+                message_status: 'REPLIED',
+                updated_at: new Date().toISOString(),
+            })
+            .eq('id', req.params.id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ── DELETE /api/v3/messages/:id
+app.delete('/api/v3/messages/:id', async (req, res) => {
+    try {
+        const { error } = await supabase
+            .from('messages')
+            .delete()
+            .eq('id', req.params.id);
+
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 // ============================================
 // START SERVER
 // ============================================

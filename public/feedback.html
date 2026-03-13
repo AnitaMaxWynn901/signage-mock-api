@@ -11,90 +11,80 @@
     <link rel="stylesheet" href="../style/pages.css" />
 
     <style>
-        /* Keep your theme tokens, just refine layout */
-
         .feedback-wrap {
-            max-width: 920px;
+            max-width: 680px;
             margin: 0 auto;
         }
 
-        .feedback-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-        }
-
-        .feedback-title {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .feedback-title h1 {
-            margin: 0;
-            font-size: 28px;
-            line-height: 1.15;
-            letter-spacing: -0.02em;
-        }
-
-        .feedback-title .subtitle {
-            margin: 4px 0 0;
-            opacity: 0.85;
-        }
-
-        .success-message {
-            background: var(--surface, #fff);
-            border: 1px solid rgba(16, 185, 129, .25);
-            box-shadow: var(--shadow-sm);
+        .success-banner {
+            background: #f0fdf4;
+            border: 1px solid rgba(16, 185, 129, .28);
             border-radius: var(--radius);
-            padding: 14px 16px;
-            margin: 14px 0;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 12px;
         }
 
-        .success-message h3 {
-            margin: 0 0 6px;
+        .success-banner.show {
+            display: flex;
+        }
+
+        .success-banner .icon {
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .success-banner .text strong {
+            display: block;
             font-size: 14px;
+            font-weight: 800;
+            color: #065f46;
         }
 
-        .success-message p {
-            margin: 0;
-            color: var(--muted, #6b7280);
-            font-weight: 600;
+        .success-banner .text span {
             font-size: 13px;
+            color: #047857;
         }
 
-        /* Form card */
-        .feedback-form {
-            background: var(--surface, #fff);
-            border: 1px solid rgba(17, 24, 39, .08);
-            border-radius: var(--radius, 18px);
+        .form-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
-            padding: 18px;
+            padding: 20px;
         }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-
-        @media (max-width: 760px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
+        /* Demo notice */
+        .demo-notice {
+            background: #fffbeb;
+            border: 1px solid rgba(245, 158, 11, .3);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            font-size: 12px;
+            color: #92400e;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .form-group {
-            margin: 0;
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
         }
 
         .form-group label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 900;
-            color: var(--muted, #6b7280);
-            letter-spacing: .08em;
+            color: var(--muted);
+            letter-spacing: .10em;
             text-transform: uppercase;
             margin-bottom: 8px;
         }
@@ -103,69 +93,173 @@
         .form-group textarea,
         .form-group select {
             width: 100%;
-            padding: 12px 12px;
-            border-radius: 14px;
-            border: 1px solid rgba(17, 24, 39, .12);
-            background: var(--surface-2, #f7f7fb);
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
             font-size: 14px;
-            font-weight: 650;
+            font-weight: 600;
+            color: var(--text);
+            font-family: var(--font);
             outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            box-sizing: border-box;
         }
 
         .form-group textarea {
-            min-height: 140px;
+            min-height: 130px;
             resize: vertical;
         }
 
         .form-group input:focus,
         .form-group textarea:focus,
         .form-group select:focus {
-            border-color: rgba(79, 70, 229, .55);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, .12);
+            border-color: rgba(79, 70, 229, .5);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .10);
             background: #fff;
         }
 
-        /* Full-width rows */
-        .span-2 {
-            grid-column: 1 / -1;
-        }
-
-        .hint {
-            margin-top: 8px;
+        .form-group .hint {
             font-size: 12px;
-            color: var(--muted, #6b7280);
-            font-weight: 650;
+            color: var(--muted);
+            margin-top: 6px;
+            font-weight: 600;
         }
 
-        .btn {
+        .submit-btn {
             width: 100%;
-            border: 0;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
             border-radius: 14px;
-            padding: 12px 14px;
             font-size: 14px;
-            font-weight: 900;
+            font-weight: 800;
             cursor: pointer;
-            background: var(--primary-color, #4f46e5);
-            color: white;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.15s ease;
+            font-family: var(--font);
+            transition: background 0.15s, transform 0.1s;
+            margin-top: 4px;
         }
 
-        /* hover fix */
-        .btn:hover {
+        .submit-btn:hover {
             background: #4338ca;
-            color: white;
         }
 
-        /* active click */
-        .btn:active {
+        .submit-btn:active {
             transform: translateY(1px);
         }
 
-        /* disabled */
-        .btn:disabled {
-            opacity: 0.7;
+        .submit-btn:disabled {
+            opacity: 0.65;
             cursor: not-allowed;
+        }
+
+        /* Message history */
+        .history-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .history-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .history-subject {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .history-date {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 999px;
+        }
+
+        .status-pill.UNREAD {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid rgba(245, 158, 11, .25);
+        }
+
+        .status-pill.REPLIED {
+            background: #f0fdf4;
+            color: #065f46;
+            border: 1px solid rgba(16, 185, 129, .25);
+        }
+
+        .status-pill.CLOSED {
+            background: var(--surface-2);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        .history-message {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .admin-reply-bubble {
+            background: #eef2ff;
+            border: 1px solid rgba(79, 70, 229, .15);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-top: 8px;
+        }
+
+        .admin-reply-bubble .reply-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 4px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        .admin-reply-bubble .reply-text {
+            font-size: 13px;
+            color: var(--text);
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .empty-history {
+            padding: 32px 16px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -174,62 +268,59 @@
     <div class="container">
         <div class="feedback-wrap">
 
-            <!-- Header card with shop icon like your other pages -->
             <div class="header-card">
-                <div class="feedback-header">
-                    <div class="feedback-title">
-                        <div class="shop-icon" id="shopIcon">S</div>
-                        <div>
-                            <h1>Send Feedback</h1>
-                            <p class="subtitle">Report an issue or send us your feedback</p>
-                        </div>
-                    </div>
+                <div class="shop-icon" id="shopIcon">S</div>
+                <div class="shop-info">
+                    <h1 id="shopName">My Shop</h1>
+                    <p class="subtitle">Send feedback or ask a question</p>
+                </div>
+                <div class="live-badge">Live</div>
+            </div>
 
-                    <div class="live-badge">Live</div>
+            <!-- Demo notice: hidden in real LINE deployment -->
+            <div class="demo-notice" id="demoNotice">
+                ⚠️ Demo mode — select a shop below. In LINE, shop is auto-detected from login.
+            </div>
+
+            <!-- Success banner -->
+            <div class="success-banner" id="successBanner">
+                <div class="icon">✅</div>
+                <div class="text">
+                    <strong>Message sent!</strong>
+                    <span>We'll reply as soon as possible.</span>
                 </div>
             </div>
 
-            <div id="successMessage" class="success-message" style="display:none;">
-                <h3>✅ Success!</h3>
-                <p>Your feedback has been submitted successfully.</p>
+            <!-- Form -->
+            <div class="form-card">
+
+                <!-- Demo shop selector (hidden in real deployment) -->
+                <div class="form-group" id="shopSelectorGroup">
+                    <label>Shop (Demo only)</label>
+                    <select id="shopSelector">
+                        <option value="">Loading shops...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" id="subject" placeholder="e.g. Device not working, Change contact number..." />
+                    <div class="hint">Brief description of your issue or question</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="message" placeholder="Describe your issue or question in detail..."></textarea>
+                </div>
+
+                <button class="submit-btn" id="submitBtn" onclick="submitFeedback()">Send Message</button>
             </div>
 
-            <div class="feedback-form">
-                <form id="feedbackForm">
+            <!-- Message history -->
+            <div class="section-header">My Previous Messages</div>
 
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="type">Type</label>
-                            <select id="type" required>
-                                <option value="">Select type...</option>
-                                <option value="feedback">Feedback</option>
-                                <option value="bug">Bug Report</option>
-                                <option value="feature">Feature Request</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-
-                        <!-- Removed: Related shop (mentor said shop is already known) -->
-
-                        <div class="form-group span-2">
-                            <label for="subject">Subject</label>
-                            <input type="text" id="subject" placeholder="Brief description" required />
-                            <div class="hint">Example: “Conversion rate looks wrong on In Store page.”</div>
-                        </div>
-
-                        <div class="form-group span-2">
-                            <label for="message">Message</label>
-                            <textarea id="message" placeholder="Describe your feedback or issue in detail..."
-                                required></textarea>
-                            <div class="hint">Tip: include date and what you expected vs what happened.</div>
-                        </div>
-
-                        <div class="span-2">
-                            <button type="submit" class="btn" id="submitBtn">Send Feedback</button>
-                        </div>
-                    </div>
-
-                </form>
+            <div class="history-card" id="historyContainer">
+                <div class="empty-history" id="historyLoading">Loading...</div>
             </div>
 
         </div>
@@ -237,16 +328,6 @@
 
     <script src="../scripts/config.js"></script>
     <script src="../scripts/feedback.js"></script>
-
-    <script>
-        // show correct shop icon using stored shop/current shop
-        (function () {
-            const shop = (localStorage.getItem('selectedShop') || 'nimman-connex');
-            const icons = { 'nimman-connex': 'N', 'one-nimman': 'O', 'maya-mall': 'M' };
-            const el = document.getElementById('shopIcon');
-            if (el) el.textContent = icons[shop] || 'S';
-        })();
-    </script>
 </body>
 
 </html>

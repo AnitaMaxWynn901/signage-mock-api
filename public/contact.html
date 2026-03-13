@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact Messages - Admin</title>
+
+    <link rel="stylesheet" href="../style/base.css" />
+    <link rel="stylesheet" href="../style/components.css" />
+
+    <style>
+        /* ── Stat cards ── */
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .stat-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 560px) {
+            .stat-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 16px 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .stat-card.total::before {
+            background: var(--primary);
+        }
+
+        .stat-card.unread::before {
+            background: var(--warning);
+        }
+
+        .stat-card.replied::before {
+            background: var(--success);
+        }
+
+        .stat-card.closed::before {
+            background: var(--muted);
+        }
+
+        .stat-card .s-label {
+            font-size: 11px;
+            font-weight: 900;
+            color: var(--muted);
+            letter-spacing: .10em;
+            text-transform: uppercase;
+        }
+
+        .stat-card .s-value {
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin-top: 4px;
+        }
+
+        /* ── Toolbar ── */
+        .toolbar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 14px 16px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .toolbar input[type="text"] {
+            flex: 1;
+            min-width: 180px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            outline: none;
+            font-family: var(--font);
+        }
+
+        .toolbar input[type="text"]:focus {
+            border-color: rgba(79, 70, 229, .4);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .08);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: var(--font);
+        }
+
+        .filter-btn:hover {
+            background: #eef2ff;
+            color: var(--primary);
+            border-color: rgba(79, 70, 229, .2);
+        }
+
+        .filter-btn.active {
+            background: #eef2ff;
+            color: var(--primary);
+            border-color: rgba(79, 70, 229, .35);
+        }
+
+        /* ── Split layout ── */
+        .split {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 14px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .split {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Message list ── */
+        .msg-list {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .msg-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.12s;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .msg-item:last-child {
+            border-bottom: none;
+        }
+
+        .msg-item:hover {
+            background: #f5f6ff;
+        }
+
+        .msg-item.active {
+            background: #eef2ff;
+            border-left-color: var(--primary);
+        }
+
+        .msg-item.unread-item {
+            border-left-color: var(--warning);
+        }
+
+        .msg-item.active.unread-item {
+            border-left-color: var(--primary);
+        }
+
+        .msg-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .msg-shop {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .msg-date {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .msg-subject {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .msg-preview {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-dot.UNREAD {
+            background: var(--warning);
+        }
+
+        .status-dot.REPLIED {
+            background: var(--success);
+        }
+
+        .status-dot.CLOSED {
+            background: var(--muted);
+        }
+
+        .msg-list-empty {
+            padding: 32px 16px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* ── Detail panel ── */
+        .detail-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .detail-empty {
+            padding: 80px 24px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .detail-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .detail-shop-name {
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .detail-meta {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .status-pill {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .status-pill.UNREAD {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid rgba(245, 158, 11, .25);
+        }
+
+        .status-pill.REPLIED {
+            background: #f0fdf4;
+            color: #065f46;
+            border: 1px solid rgba(16, 185, 129, .25);
+        }
+
+        .status-pill.CLOSED {
+            background: var(--surface-2);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        .thread {
+            padding: 20px;
+            max-height: 360px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* shop message bubble */
+        .bubble-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .bubble-row.admin {
+            flex-direction: row-reverse;
+        }
+
+        .bubble-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: 14px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .bubble-avatar.shop {
+            background: linear-gradient(135deg, #4fd1c5, #4f46e5);
+            color: #fff;
+        }
+
+        .bubble-avatar.admin {
+            background: #eef2ff;
+            color: var(--primary);
+        }
+
+        .bubble-content {
+            flex: 1;
+        }
+
+        .bubble-meta {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .bubble-row.admin .bubble-meta {
+            text-align: right;
+        }
+
+        .bubble {
+            padding: 12px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.55;
+            color: var(--text);
+        }
+
+        .bubble.shop {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 4px 14px 14px 14px;
+        }
+
+        .bubble.admin-reply {
+            background: #eef2ff;
+            border: 1px solid rgba(79, 70, 229, .15);
+            border-radius: 14px 4px 14px 14px;
+        }
+
+        /* ── Actions bar ── */
+        .detail-actions {
+            padding: 14px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 10px 18px;
+            border-radius: 12px;
+            border: none;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: var(--font);
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn.reply {
+            background: var(--primary);
+            color: #fff;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .action-btn.reply:hover {
+            background: #4338ca;
+        }
+
+        .action-btn.close-btn {
+            background: var(--surface-2);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        .action-btn.close-btn:hover {
+            background: #f3f4f6;
+            color: var(--text);
+        }
+
+        .action-btn.delete-btn {
+            background: #fff5f5;
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, .2);
+        }
+
+        .action-btn.delete-btn:hover {
+            background: #fee2e2;
+        }
+
+        /* ── Reply modal ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 24px;
+            width: 100%;
+            max-width: 560px;
+        }
+
+        .modal-card h2 {
+            font-size: 16px;
+            font-weight: 900;
+            margin: 0 0 4px;
+        }
+
+        .modal-card .modal-sub {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+
+        .original-msg {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .reply-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            font-family: var(--font);
+            outline: none;
+            resize: vertical;
+            box-sizing: border-box;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .reply-textarea:focus {
+            border-color: rgba(79, 70, 229, .45);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .10);
+            background: #fff;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .cancel-btn {
+            padding: 10px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: var(--font);
+        }
+
+        .cancel-btn:hover {
+            background: #f3f4f6;
+            color: var(--text);
+        }
+
+        .send-reply-btn {
+            padding: 10px 22px;
+            border-radius: 12px;
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: var(--font);
+        }
+
+        .send-reply-btn:hover {
+            background: #4338ca;
+        }
+
+        .send-reply-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header-card" style="margin-bottom:20px;">
+            <div class="shop-icon">✉️</div>
+            <div class="shop-info">
+                <h1>Contact Messages</h1>
+                <p class="subtitle">Messages from shops and users</p>
+            </div>
+            <div class="live-badge">Live</div>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="stat-row">
+            <div class="stat-card total">
+                <div class="s-label">Total</div>
+                <div class="s-value" id="statTotal">—</div>
+            </div>
+            <div class="stat-card unread">
+                <div class="s-label">Unread</div>
+                <div class="s-value" id="statUnread">—</div>
+            </div>
+            <div class="stat-card replied">
+                <div class="s-label">Replied</div>
+                <div class="s-value" id="statReplied">—</div>
+            </div>
+            <div class="stat-card closed">
+                <div class="s-label">Closed</div>
+                <div class="s-value" id="statClosed">—</div>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <input type="text" id="searchInput" placeholder="🔍  Search by shop, phone, subject, ID..."
+                oninput="renderList()" />
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="All" onclick="setFilter(this)">All</button>
+                <button class="filter-btn" data-filter="UNREAD" onclick="setFilter(this)">Unread</button>
+                <button class="filter-btn" data-filter="REPLIED" onclick="setFilter(this)">Replied</button>
+                <button class="filter-btn" data-filter="CLOSED" onclick="setFilter(this)">Closed</button>
+            </div>
+        </div>
+
+        <!-- Split layout -->
+        <div class="split">
+
+            <!-- Message list -->
+            <div class="msg-list" id="msgList">
+                <div class="msg-list-empty">Loading messages...</div>
+            </div>
+
+            <!-- Detail panel -->
+            <div class="detail-panel" id="detailPanel">
+                <div class="detail-empty">Select a message from the list</div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Reply Modal -->
+    <div class="modal-overlay" id="replyModal" style="display:none;" onclick="closeModalOnBg(event)">
+        <div class="modal-card">
+            <h2 id="modalTitle">Reply to MSG-000</h2>
+            <p class="modal-sub" id="modalSub">From: — · Subject: —</p>
+            <div class="original-msg" id="modalOriginal"></div>
+            <label
+                style="font-size:11px;font-weight:900;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:block;">Your
+                Reply</label>
+            <textarea class="reply-textarea" id="replyText" placeholder="Type your reply..."></textarea>
+            <div class="modal-footer">
+                <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+                <button class="send-reply-btn" id="sendReplyBtn" onclick="submitReply()">Send Reply</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/contact.js"></script>
+</body>
+
+</html>
