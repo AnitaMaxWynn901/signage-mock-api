@@ -33,12 +33,14 @@ async function initFeedback() {
 async function loadShopsDropdown() {
     try {
         const res = await fetch(`${API}/api/v3/shops`);
-        const shops = await res.json();
+        const json = await res.json();
+        // API returns { success: true, shops: [...] }
+        const shops = json.shops || json || [];
 
         const selector = document.getElementById('shopSelector');
         selector.innerHTML = `<option value="">— Select your shop (demo) —</option>`;
 
-        (shops || []).forEach(s => {
+        (Array.isArray(shops) ? shops : []).forEach(s => {
             const opt = document.createElement('option');
             opt.value = s.shop_id;
             opt.textContent = `${s.shop_id} — ${s.shop_name}`;
