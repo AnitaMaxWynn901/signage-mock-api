@@ -12,11 +12,10 @@ app.use(express.json());
 
 const path = require("path");
 
-// Serve HTML files in /public at /public/...
 app.use("/public", express.static(path.join(__dirname, "public")));
-
 app.use("/style", express.static(path.join(__dirname, "style")));
 app.use("/scripts", express.static(path.join(__dirname, "scripts")));
+app.use("/admin", express.static(path.join(__dirname, "admin")));
 
 const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(
@@ -39,10 +38,7 @@ const proxyMovement = require('./JSONs/proxy-movement.json');
 const requireDate = (req, res) => {
     const { date } = req.body || {};
     if (!date) {
-        res.status(400).json({
-            success: false,
-            message: "date is required!"
-        });
+        res.status(400).json({ success: false, message: "date is required!" });
         return null;
     }
     return date;
@@ -50,230 +46,217 @@ const requireDate = (req, res) => {
 
 const respondWithOptionalShopFilter = (res, payload, rootKey, date, shopname) => {
     const rootObj = payload[rootKey];
-
-    // safety check
     if (!rootObj || typeof rootObj !== "object") {
-        return res.status(500).json({
-            success: false,
-            message: `Invalid JSON format: missing root key "${rootKey}"`
-        });
+        return res.status(500).json({ success: false, message: `Invalid JSON format: missing root key "${rootKey}"` });
     }
-
-    // filter by shopname
     if (shopname) {
         const shopData = rootObj[shopname];
-        if (!shopData) {
-            return res.status(404).json({
-                success: false,
-                message: "404 SHOP NOT FOUND"
-            });
-        }
-        return res.json({
-            success: true,
-            date,
-            [rootKey]: {
-                [shopname]: shopData
-            }
-        });
+        if (!shopData) return res.status(404).json({ success: false, message: "404 SHOP NOT FOUND" });
+        return res.json({ success: true, date, [rootKey]: { [shopname]: shopData } });
     }
-
-    // return all
-    return res.json({
-        success: true,
-        date,
-        ...payload
-    });
+    return res.json({ success: true, date, ...payload });
 };
 
 // ============================================
-// TEST ENDPOINT
+// ROOT
 // ============================================
 app.get('/', (req, res) => {
     res.json({
         message: '🚀 Smart Signage Mock API',
         status: 'running',
         version: 'v3',
-        endpoints: {
-            "GET": ["/", "/api/v3/shop-info"],
-            "POST": [
-                "/api/v3/dashboard/summary",
-                "/api/v3/dashboard/ads",
-                "/api/v3/dashboard/viewer",
-                "/api/v3/dashboard/summary-hourly",
-                "/api/v3/proxy/crowd",
-                "/api/v3/proxy/crowd-batch",
-                "/api/v3/proxy/daily-summery",
-                "/api/v3/proxy/dataunique",
-                "/api/v3/proxy/movement",
-                "/api/v3/reset"
-            ]
-        },
         timestamp: new Date().toISOString()
     });
 });
 
 // ============================================
-// 1. SHOP INFO
+// MOCK JSON ENDPOINTS
 // ============================================
-app.get('/api/v3/shop-info', (req, res) => {
-    console.log('📍 GET /api/v3/shop-info');
-    res.json(shopInfo);
-});
+app.get('/api/v3/shop-info', (req, res) => res.json(shopInfo));
 
-// ============================================
-// 2. DASHBOARD SUMMARY
-// ============================================
 app.post('/api/v3/dashboard/summary', (req, res) => {
-    console.log('📊 POST /api/v3/dashboard/summary');
-
-    const date = requireDate(req, res);
-    if (!date) return;
-
-    const { shopname } = req.body;
-    return respondWithOptionalShopFilter(res, dashboardSummary, "dashboard/summary", date, shopname);
+    const date = requireDate(req, res); if (!date) return;
+    return respondWithOptionalShopFilter(res, dashboardSummary, "dashboard/summary", date, req.body.shopname);
 });
-
-// ============================================
-// 3. DASHBOARD ADS
-// ============================================
 app.post('/api/v3/dashboard/ads', (req, res) => {
-    console.log('📺 POST /api/v3/dashboard/ads');
-
-    const date = requireDate(req, res);
-    if (!date) return;
-
-    const { shopname } = req.body;
-    return respondWithOptionalShopFilter(res, dashboardAds, "dashboard/ads", date, shopname);
+    const date = requireDate(req, res); if (!date) return;
+    return respondWithOptionalShopFilter(res, dashboardAds, "dashboard/ads", date, req.body.shopname);
 });
-
-// ============================================
-// 4. RESET
-// ============================================
-app.post('/api/v3/reset', (req, res) => {
-    console.log('🔄 POST /api/v3/reset');
-    res.json({
-        success: true,
-        message: 'State reset successfully',
-        timestamp: new Date().toISOString()
-    });
-});
-
-// ============================================
-// 5. DASHBOARD VIEWER
-// ============================================
-app.post('/api/v3/dashboard/summary-hourly', (req, res) => {
-    console.log('👁️ POST /api/v3/dashboard/summary-hourly');
-
-    const date = requireDate(req, res);
-    if (!date) return;
-
-    const { shopname } = req.body;
-    return respondWithOptionalShopFilter(res, dashboardSummaryHourly, "dashboard/summary-hourly", date, shopname);
-});
-
-
-// ============================================
-// 5. DASHBOARD VIEWER
-// ============================================
 app.post('/api/v3/dashboard/viewer', (req, res) => {
-    console.log('👁️ POST /api/v3/dashboard/viewer');
-
-    const date = requireDate(req, res);
-    if (!date) return;
-
-    const { shopname } = req.body;
-    return respondWithOptionalShopFilter(res, dashboardViewer, "dashboard/viewer", date, shopname);
+    const date = requireDate(req, res); if (!date) return;
+    return respondWithOptionalShopFilter(res, dashboardViewer, "dashboard/viewer", date, req.body.shopname);
 });
-
-// ============================================
-// 6. PROXY CROWD
-// ============================================
+app.post('/api/v3/dashboard/summary-hourly', (req, res) => {
+    const date = requireDate(req, res); if (!date) return;
+    return respondWithOptionalShopFilter(res, dashboardSummaryHourly, "dashboard/summary-hourly", date, req.body.shopname);
+});
 app.post('/api/v3/proxy/crowd', (req, res) => {
-    console.log('👥 POST /api/v3/proxy/crowd');
-
-    const date = requireDate(req, res);
-    if (!date) return;
-
-    const { shopname } = req.body;
-    return respondWithOptionalShopFilter(res, proxyCrowd, "proxy/crowd", date, shopname);
+    const date = requireDate(req, res); if (!date) return;
+    return respondWithOptionalShopFilter(res, proxyCrowd, "proxy/crowd", date, req.body.shopname);
 });
-
-// ============================================
-// 7. PROXY CROWD BATCH
-// ============================================
 app.post('/api/v3/proxy/crowd-batch', (req, res) => {
-    console.log('📦 POST /api/v3/proxy/crowd-batch');
-
-    const date = requireDate(req, res);
-    if (!date) return;
-
-    const { shopname } = req.body;
-    return respondWithOptionalShopFilter(res, proxyCrowdBatch, "proxy/crowd-batch", date, shopname);
+    const date = requireDate(req, res); if (!date) return;
+    return respondWithOptionalShopFilter(res, proxyCrowdBatch, "proxy/crowd-batch", date, req.body.shopname);
 });
-
-// ============================================
-// 8. PROXY DAILY SUMMARY
-// ============================================
 app.post('/api/v3/proxy/daily-summery', (req, res) => {
-    console.log('📅 POST /api/v3/proxy/daily-summery');
-
-    const date = requireDate(req, res);
-    if (!date) return;
-
-    const { shopname } = req.body;
-    return respondWithOptionalShopFilter(res, proxyDailySummary, "proxy/daily-summery", date, shopname);
+    const date = requireDate(req, res); if (!date) return;
+    return respondWithOptionalShopFilter(res, proxyDailySummary, "proxy/daily-summery", date, req.body.shopname);
 });
-
-// ============================================
-// 9. PROXY DATA UNIQUE
-// ============================================
 app.post('/api/v3/proxy/dataunique', (req, res) => {
-    console.log('🔢 POST /api/v3/proxy/dataunique');
-
-    const date = requireDate(req, res);
-    if (!date) return;
-
-    const { shopname } = req.body;
-    return respondWithOptionalShopFilter(res, proxyDataUnique, "proxy/dataunique", date, shopname);
+    const date = requireDate(req, res); if (!date) return;
+    return respondWithOptionalShopFilter(res, proxyDataUnique, "proxy/dataunique", date, req.body.shopname);
 });
-
-// ============================================
-// 10. PROXY MOVEMENT
-// ============================================
 app.post('/api/v3/proxy/movement', (req, res) => {
-    console.log('🚶 POST /api/v3/proxy/movement');
-
-    const date = requireDate(req, res);
-    if (!date) return;
-
-    const { shopname } = req.body;
-    return respondWithOptionalShopFilter(res, proxyMovement, "proxy/movement", date, shopname);
+    const date = requireDate(req, res); if (!date) return;
+    return respondWithOptionalShopFilter(res, proxyMovement, "proxy/movement", date, req.body.shopname);
+});
+app.post('/api/v3/reset', (req, res) => {
+    res.json({ success: true, message: 'State reset successfully', timestamp: new Date().toISOString() });
 });
 
 // ============================================
-// SHOP MANAGEMENT - GET ALL SHOPS
+// ADMIN — SHOPS (Supabase)
 // ============================================
-app.get('/api/v3/shops', async (req, res) => {
-    console.log('🏪 GET /api/v3/shops');
 
+// GET all shops
+app.get('/api/v3/shops', async (req, res) => {
     try {
         const { data, error } = await supabase
-            .from('shops')
-            .select('*')
-            .order('created_at', { ascending: false });
-
+            .from('shops').select('*').order('created_at', { ascending: true });
         if (error) throw error;
+        res.json({ success: true, shops: data });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
 
-        res.json({
-            success: true,
-            shops: data
-        });
-    } catch (error) {
-        console.error('Supabase error:', error);
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+// POST create shop
+app.post('/api/v3/shops', async (req, res) => {
+    try {
+        const { node_id, shop_id, shop_name, location, devices_count, phone_number, category, status, active } = req.body;
+        const { data, error } = await supabase
+            .from('shops').insert([{ node_id, shop_id, shop_name, location, devices_count: devices_count || 0, phone_number, category, status: status || 'Active', active: active !== false }])
+            .select().single();
+        if (error) throw error;
+        res.json({ success: true, shop: data });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// PATCH update shop
+app.patch('/api/v3/shops/:shop_id', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('shops').update(req.body).eq('shop_id', req.params.shop_id).select().single();
+        if (error) throw error;
+        res.json({ success: true, shop: data });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// DELETE shop
+app.delete('/api/v3/shops/:shop_id', async (req, res) => {
+    try {
+        const { error } = await supabase.from('shops').delete().eq('shop_id', req.params.shop_id);
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ============================================
+// ADMIN — DEVICES (Supabase)
+// ============================================
+
+// GET all devices (with linked shops via device_shops join)
+app.get('/api/v3/devices', async (req, res) => {
+    try {
+        const { data: devices, error: devErr } = await supabase
+            .from('devices').select('*').order('created_at', { ascending: true });
+        if (devErr) throw devErr;
+
+        // Fetch all device_shops links with shop info
+        const { data: links, error: linkErr } = await supabase
+            .from('device_shops')
+            .select('device_id, shop_id, shops(shop_id, shop_name, category, active)');
+        if (linkErr) throw linkErr;
+
+        // Attach linked shops to each device
+        const devicesWithShops = devices.map(dev => ({
+            ...dev,
+            shops: links
+                .filter(l => l.device_id === dev.device_id)
+                .map(l => l.shops)
+                .filter(Boolean)
+        }));
+
+        res.json({ success: true, devices: devicesWithShops });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// POST create device
+app.post('/api/v3/devices', async (req, res) => {
+    try {
+        const { device_id, name, status, active } = req.body;
+        const { data, error } = await supabase
+            .from('devices').insert([{ device_id, name, status: status || 'Active', active: active !== false }])
+            .select().single();
+        if (error) throw error;
+        res.json({ success: true, device: data });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// PATCH update device
+app.patch('/api/v3/devices/:device_id', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('devices').update(req.body).eq('device_id', req.params.device_id).select().single();
+        if (error) throw error;
+        res.json({ success: true, device: data });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// DELETE device
+app.delete('/api/v3/devices/:device_id', async (req, res) => {
+    try {
+        const { error } = await supabase.from('devices').delete().eq('device_id', req.params.device_id);
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// PUT update device-shop links (replace all links for a device)
+app.put('/api/v3/devices/:device_id/shops', async (req, res) => {
+    try {
+        const { device_id } = req.params;
+        const { shop_ids } = req.body; // array of shop_id strings
+
+        // Delete existing links
+        const { error: delErr } = await supabase
+            .from('device_shops').delete().eq('device_id', device_id);
+        if (delErr) throw delErr;
+
+        // Insert new links
+        if (shop_ids && shop_ids.length > 0) {
+            const rows = shop_ids.map(sid => ({ device_id, shop_id: sid }));
+            const { error: insErr } = await supabase.from('device_shops').insert(rows);
+            if (insErr) throw insErr;
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
     }
 });
 
@@ -281,23 +264,10 @@ app.get('/api/v3/shops', async (req, res) => {
 // START SERVER
 // ============================================
 app.listen(PORT, () => {
-    console.log('\n🚀 ========================================');
-    console.log('   Smart Signage Mock API v3');
-    console.log(`   Server: http://localhost:${PORT}`);
-    console.log('   Status: Running');
-    console.log('🚀 ========================================\n');
-    console.log('📝 Available Endpoints:');
-    console.log('   GET  /');
-    console.log('   GET  /api/v3/shop-info');
-    console.log('   POST /api/v3/dashboard/summary');
-    console.log('   POST /api/v3/dashboard/ads');
-    console.log('   POST /api/v3/dashboard/viewer');
-    console.log('   POST /api/v3/dashboard/summary-hourly');
-    console.log('   POST /api/v3/proxy/crowd');
-    console.log('   POST /api/v3/proxy/crowd-batch');
-    console.log('   POST /api/v3/proxy/daily-summery');
-    console.log('   POST /api/v3/proxy/dataunique');
-    console.log('   POST /api/v3/proxy/movement');
-    console.log('   POST /api/v3/reset');
-    console.log('\n✅ Ready to accept requests!\n');
+    console.log('\n🚀 Smart Signage Mock API v3');
+    console.log(`   http://localhost:${PORT}`);
+    console.log('\n📝 Admin pages:');
+    console.log(`   http://localhost:${PORT}/public/shops.html`);
+    console.log(`   http://localhost:${PORT}/public/area-devices.html`);
+    console.log('\n✅ Ready!\n');
 });
