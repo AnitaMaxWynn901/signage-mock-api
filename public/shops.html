@@ -7,76 +7,723 @@
     <title>Shop Management - Smart Signage</title>
     <link rel="stylesheet" href="../style/base.css">
     <link rel="stylesheet" href="../style/components.css">
+
+    <style>
+        /* ── Stat cards row ── */
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 900px) {
+            .stat-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 560px) {
+            .stat-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 18px 18px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 99px 99px 0 0;
+        }
+
+        .stat-card.shops::before {
+            background: var(--primary);
+        }
+
+        .stat-card.active::before {
+            background: var(--success);
+        }
+
+        .stat-card.devices::before {
+            background: var(--info);
+        }
+
+        .stat-card.cats::before {
+            background: var(--warning);
+        }
+
+        .stat-card .sc-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .10em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-card .sc-value {
+            font-size: 40px;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .stat-card.shops .sc-value {
+            color: var(--primary);
+        }
+
+        .stat-card.active .sc-value {
+            color: var(--success);
+        }
+
+        .stat-card.devices .sc-value {
+            color: var(--info);
+        }
+
+        .stat-card.cats .sc-value {
+            color: var(--warning);
+        }
+
+        .stat-card .sc-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        /* ── Toolbar ── */
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .toolbar .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .toolbar .search-wrap .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        .toolbar input[type="search"] {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            color: var(--text);
+        }
+
+        .toolbar input[type="search"]:focus {
+            border-color: rgba(79, 70, 229, .40);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .10);
+        }
+
+        .toolbar select {
+            padding: 10px 32px 10px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            cursor: pointer;
+        }
+
+        .toolbar select:focus {
+            border-color: rgba(79, 70, 229, .40);
+        }
+
+        .toolbar .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* toolbar buttons */
+        .tbtn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background .12s, box-shadow .12s;
+        }
+
+        .tbtn:hover {
+            background: var(--surface-2);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tbtn.primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .tbtn.primary:hover {
+            background: #4338ca;
+        }
+
+        /* ── Table panel ── */
+        .table-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            padding: 12px 14px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--muted);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(17, 24, 39, .05);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--surface-2);
+        }
+
+        td {
+            padding: 13px 14px;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .node-id {
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .shop-id-badge {
+            font-family: monospace;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .shop-name-cell {
+            font-weight: 700;
+        }
+
+        .coord-link {
+            color: var(--info);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .device-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            background: rgba(79, 70, 229, .10);
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        /* category chips */
+        .chip {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .chip.cafe {
+            background: rgba(245, 158, 11, .12);
+            color: #b45309;
+        }
+
+        .chip.spa {
+            background: rgba(139, 92, 246, .12);
+            color: #6d28d9;
+        }
+
+        .chip.restaurant {
+            background: rgba(239, 68, 68, .12);
+            color: #b91c1c;
+        }
+
+        .chip.retail {
+            background: rgba(245, 158, 11, .12);
+            color: #b45309;
+        }
+
+        .chip.office {
+            background: rgba(14, 165, 233, .12);
+            color: #0369a1;
+        }
+
+        .chip.default {
+            background: rgba(107, 114, 128, .12);
+            color: #374151;
+        }
+
+        /* status toggle */
+        .toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle {
+            position: relative;
+            width: 38px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+
+        .toggle input {
+            display: none;
+        }
+
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            background: #d1d5db;
+            transition: background .2s;
+            cursor: pointer;
+        }
+
+        .toggle input:checked+.toggle-track {
+            background: #10b981;
+        }
+
+        .toggle-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+            transition: transform .2s;
+            pointer-events: none;
+        }
+
+        .toggle input:checked~.toggle-thumb {
+            transform: translateX(16px);
+        }
+
+        .status-label {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-label.active {
+            color: var(--success);
+        }
+
+        .status-label.suspended {
+            color: var(--danger);
+        }
+
+        .date-cell {
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        /* action buttons */
+        .act-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 11px;
+            border-radius: 8px;
+            border: 1px solid;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity .12s;
+        }
+
+        .act-btn:hover {
+            opacity: .75;
+        }
+
+        .act-btn.edit {
+            background: rgba(79, 70, 229, .08);
+            border-color: rgba(79, 70, 229, .22);
+            color: var(--primary);
+        }
+
+        .act-btn.delete {
+            background: rgba(239, 68, 68, .08);
+            border-color: rgba(239, 68, 68, .22);
+            color: var(--danger);
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        /* table footer */
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .page-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 1px solid var(--primary);
+            background: var(--primary);
+            color: white;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+        }
+
+        /* modal overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(17, 24, 39, .45);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            padding: 24px;
+            width: 100%;
+            max-width: 480px;
+            margin: 20px;
+        }
+
+        .modal h3 {
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 18px;
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .modal-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .modal-group.span-2 {
+            grid-column: 1 / -1;
+        }
+
+        .modal-group label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .modal-group input,
+        .modal-group select {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            color: var(--text);
+        }
+
+        .modal-group input:focus,
+        .modal-group select:focus {
+            border-color: rgba(79, 70, 229, .40);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .10);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+
+        .modal-footer button {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .modal-footer .btn-cancel {
+            background: var(--surface-2);
+            color: var(--muted);
+        }
+
+        .modal-footer .btn-save {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
+
         <!-- Header -->
-        <div class="header-card">
+        <div class="header-card" style="margin-bottom:18px;">
             <div class="shop-icon">🏪</div>
             <div class="shop-info">
-                <h1>Shop Management</h1>
-                <p class="subtitle">Manage all registered shops</p>
-                <div class="header-meta">
-                    <div>
-                        <span>📊</span>
-                        <span id="totalShops">0 shops</span>
-                    </div>
-                </div>
+                <h1>Manage the store</h1>
+                <p class="subtitle">Shop Management</p>
             </div>
-            <div class="live-badge">Admin</div>
+            <div class="live-badge" id="shopCountBadge">0 shops</div>
         </div>
 
-        <!-- Loading State -->
-        <div id="loading" class="loading">
+        <!-- Loading / Error -->
+        <div id="loading" class="loading" style="margin-bottom:16px;">
             <h2>🏪 Loading Shops...</h2>
         </div>
 
-        <!-- Error State -->
-        <div id="error" class="error" style="display:none;">
+        <div id="error" class="error" style="display:none; margin-bottom:16px;">
             <h3>❌ Error</h3>
             <p id="errorMessage"></p>
         </div>
 
-        <!-- Shops Container -->
-        <div id="shopsContainer" style="display:none;">
-            <div class="section-header">All Shops</div>
+        <!-- Main content (hidden until data loads) -->
+        <div id="mainContent" style="display:none;">
 
-            <!-- Shops Table -->
-            <div class="panel">
-                <table id="shopsTable" style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid var(--border);">
-                            <th
-                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
-                                NODE ID</th>
-                            <th
-                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
-                                SHOP ID</th>
-                            <th
-                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
-                                SHOP NAME</th>
-                            <th
-                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
-                                LOCATION</th>
-                            <th
-                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
-                                DEVICES</th>
-                            <th
-                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
-                                PHONE</th>
-                            <th
-                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
-                                CATEGORY</th>
-                            <th
-                                style="padding: 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted);">
-                                STATUS</th>
-                        </tr>
-                    </thead>
-                    <tbody id="shopsTableBody">
-                        <!-- Filled by JavaScript -->
-                    </tbody>
-                </table>
+            <!-- Stat cards -->
+            <div class="stat-row">
+                <div class="stat-card shops">
+                    <div>
+                        <div class="sc-label">Total Shops</div>
+                        <div class="sc-value" id="statTotal">0</div>
+                    </div>
+                    <div class="sc-icon">🏪</div>
+                </div>
+                <div class="stat-card active">
+                    <div>
+                        <div class="sc-label">Active</div>
+                        <div class="sc-value" id="statActive">0</div>
+                    </div>
+                    <div class="sc-icon">✅</div>
+                </div>
+                <div class="stat-card devices">
+                    <div>
+                        <div class="sc-label">Total Devices</div>
+                        <div class="sc-value" id="statDevices">0</div>
+                    </div>
+                    <div class="sc-icon">📡</div>
+                </div>
+                <div class="stat-card cats">
+                    <div>
+                        <div class="sc-label">Categories</div>
+                        <div class="sc-value" id="statCats">0</div>
+                    </div>
+                    <div class="sc-icon">🗂️</div>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="search-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input type="search" id="searchInput" placeholder="Find a store, Node, Shop ID..." />
+                </div>
+
+                <select id="categoryFilter">
+                    <option value="">All categories</option>
+                </select>
+
+                <div class="btn-group">
+                    <button class="tbtn" onclick="importCSV()">📥 Import CSV</button>
+                    <button class="tbtn" onclick="exportCSV()">📤 Export CSV</button>
+                    <button class="tbtn" onclick="openModal('add-node')">➕ Add from Node</button>
+                    <button class="tbtn" onclick="openModal('add-summary')">📊 Add from Summary</button>
+                    <button class="tbtn primary" onclick="openModal('add')">＋ Add a new store</button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-panel">
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Node ID</th>
+                                <th>Shop ID</th>
+                                <th>Name of the Restaurant</th>
+                                <th>Coordinates</th>
+                                <th>Equipment</th>
+                                <th>Phone Number</th>
+                                <th>Categories</th>
+                                <th>Status</th>
+                                <th>Created On</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="shopsTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="table-footer">
+                    <span id="footerLabel">Showing 0 of 0 restaurants</span>
+                    <div style="display:flex;gap:6px;" id="pagination"></div>
+                </div>
+            </div>
+
+        </div><!-- /mainContent -->
+    </div><!-- /container -->
+
+    <!-- Add / Edit Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3 id="modalTitle">Add a new store</h3>
+            <div class="modal-grid">
+                <div class="modal-group">
+                    <label>Node ID</label>
+                    <input type="text" id="fNodeId" placeholder="NODE-A1" />
+                </div>
+                <div class="modal-group">
+                    <label>Shop ID</label>
+                    <input type="text" id="fShopId" placeholder="SH001" />
+                </div>
+                <div class="modal-group span-2">
+                    <label>Shop Name</label>
+                    <input type="text" id="fShopName" placeholder="e.g. Nimman Cafe" />
+                </div>
+                <div class="modal-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="fPhone" placeholder="081-234-5678" />
+                </div>
+                <div class="modal-group">
+                    <label>Category</label>
+                    <select id="fCategory">
+                        <option value="Cafe">Cafe</option>
+                        <option value="Restaurant">Restaurant</option>
+                        <option value="Spa">Spa</option>
+                        <option value="Retail">Retail</option>
+                        <option value="Office">Office</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="modal-group">
+                    <label>Latitude</label>
+                    <input type="text" id="fLat" placeholder="18.7965" />
+                </div>
+                <div class="modal-group">
+                    <label>Longitude</label>
+                    <input type="text" id="fLng" placeholder="98.9673" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-save" onclick="saveModal()">Save</button>
             </div>
         </div>
     </div>
