@@ -24,13 +24,9 @@ function getApiUrl(endpoint) {
     return `${CONFIG.API_URL}${endpoint}`;
 }
 
-// ── Session-based shop detection ──────────────────────────────────────────────
-// Reads from sessionStorage (set by login.js after successful login).
-// If no session found, redirects to login.html.
-
 function getCurrentShop() {
     try {
-        const raw = sessionStorage.getItem('liff_shop');
+        const raw = localStorage.getItem('liff_shop');
         if (!raw) {
             window.location.href = 'login.html';
             return null;
@@ -47,20 +43,16 @@ function getCurrentShop() {
     }
 }
 
-// ── Get full session object ────────────────────────────────────────────────────
-
 function getShopSession() {
     try {
-        const raw = sessionStorage.getItem('liff_shop');
+        const raw = localStorage.getItem('liff_shop');
         return raw ? JSON.parse(raw) : null;
     } catch {
         return null;
     }
 }
 
-// ── Logout ────────────────────────────────────────────────────────────────────
-
 function logout() {
-    sessionStorage.removeItem('liff_shop');
+    localStorage.removeItem('liff_shop');
     window.location.href = 'login.html';
 }
