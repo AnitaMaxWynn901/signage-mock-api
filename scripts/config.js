@@ -26,7 +26,7 @@ function getApiUrl(endpoint) {
 
 function getCurrentShop() {
     try {
-        const raw = localStorage.getItem('liff_shop');
+        const raw = sessionStorage.getItem('liff_shop');
         if (!raw) {
             window.location.href = 'login.html';
             return null;
@@ -53,6 +53,6 @@ function getShopSession() {
 }
 
 function logout() {
-    localStorage.removeItem('liff_shop');
+    sessionStorage.removeItem('liff_shop');
     window.location.href = 'login.html';
 }

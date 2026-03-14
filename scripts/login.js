@@ -47,7 +47,7 @@ async function doLogin() {
         }
 
         // Save to localStorage — persists across tabs and links
-        localStorage.setItem('liff_shop', JSON.stringify(data.shop));
+        sessionStorage.setItem('liff_shop', JSON.stringify(data.shop));
 
         window.location.href = 'summary.html';
 
