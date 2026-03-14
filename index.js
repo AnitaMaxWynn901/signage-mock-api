@@ -34,6 +34,68 @@ const proxyDailySummary = require('./JSONs/proxy-daily-summery.json');
 const proxyDataUnique = require('./JSONs/proxy-dataunique.json');
 const proxyMovement = require('./JSONs/proxy-movement.json');
 
+
+// ════════════════════════════════════════════════════════
+// AUTH — LOGIN ENDPOINT
+// ════════════════════════════════════════════════════════
+
+// POST /api/v3/auth/login
+// Body: { shop_id, phone_number }
+// Returns: { success, shop } where shop includes shopname_key
+app.post('/api/v3/auth/login', async (req, res) => {
+    try {
+        const { shop_id, phone_number } = req.body;
+
+        if (!shop_id || !phone_number) {
+            return res.status(400).json({
+                success: false,
+                message: 'shop_id and phone_number are required'
+            });
+        }
+
+        // Find shop in Supabase matching both shop_id AND phone_number
+        const { data, error } = await supabase
+            .from('shops')
+            .select('shop_id, shop_name, shopname_key, category, phone_number, active')
+            .eq('shop_id', shop_id.trim().toUpperCase())
+            .eq('phone_number', phone_number.trim())
+            .single();
+
+        if (error || !data) {
+            return res.status(401).json({
+                success: false,
+                message: 'Shop ID or phone number is incorrect'
+            });
+        }
+
+        if (!data.active) {
+            return res.status(403).json({
+                success: false,
+                message: 'This shop account has been suspended'
+            });
+        }
+
+        if (!data.shopname_key) {
+            return res.status(403).json({
+                success: false,
+                message: 'This shop does not have dashboard access yet'
+            });
+        }
+
+        res.json({
+            success: true,
+            shop: {
+                shop_id: data.shop_id,
+                shop_name: data.shop_name,
+                shopname_key: data.shopname_key,
+                category: data.category,
+            }
+        });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
 // ===== helpers =====
 const requireDate = (req, res) => {
     const { date } = req.body || {};
