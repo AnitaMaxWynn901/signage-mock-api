@@ -36,8 +36,9 @@ const proxyDataUnique = require('./JSONs/proxy-dataunique.json');
 const proxyMovement = require('./JSONs/proxy-movement.json');
 
 // ════════════════════════════════════════════════════════
-// LINE WEBHOOK — add this to your index.js
+// LINE WEBHOOK — Replace your existing webhook code in index.js
 // ════════════════════════════════════════════════════════
+
 
 const LINE_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
@@ -52,9 +53,9 @@ const LIFF_URLS = {
     feedback: 'https://liff.line.me/2009450913-B6U8zOOL',
 };
 
-// ── Webhook endpoint ──────────────────────────────────────────────────────────
+// ── Webhook endpoint
 app.post('/webhook', async (req, res) => {
-    res.status(200).send('OK'); // respond immediately
+    res.status(200).send('OK');
 
     const events = req.body.events || [];
     for (const event of events) {
@@ -67,81 +68,67 @@ app.post('/webhook', async (req, res) => {
     }
 });
 
-// ── Send 8 flex messages ──────────────────────────────────────────────────────
+// ── Send carousel with all 8 pages
 async function sendDashboardMenu(replyToken) {
-    const messages = [
-        makeFlexCard('📊 Summary', 'Overall visitor statistics', LIFF_URLS.summary, '#4F46E5'),
-        makeFlexCard('📍 Area', 'People in the area', LIFF_URLS.area, '#16A34A'),
-        makeFlexCard('🏪 Front Store', 'Visitors in front of the store', LIFF_URLS.frontStore, '#D97706'),
-        makeFlexCard('🛍️ In Store', 'Visitors inside the store', LIFF_URLS.inStore, '#EF4444'),
-        makeFlexCard('🔄 Flow', 'Customer movement flow', LIFF_URLS.flow, '#7C3AED'),
-        makeFlexCard('📺 ADS', 'Ad display analytics', LIFF_URLS.ads, '#2563EB'),
-        makeFlexCard('👁️ Viewer', 'Viewer demographics', LIFF_URLS.viewer, '#F97316'),
-        makeFlexCard('✉️ Feedback', 'Send feedback to admin', LIFF_URLS.feedback, '#0891B2'),
+    const pages = [
+        { title: '📊 Summary', subtitle: 'Overall visitor statistics', url: LIFF_URLS.summary, color: '#4F46E5' },
+        { title: '📍 Area', subtitle: 'People in the area', url: LIFF_URLS.area, color: '#16A34A' },
+        { title: '🏪 Front Store', subtitle: 'Visitors in front of the store', url: LIFF_URLS.frontStore, color: '#D97706' },
+        { title: '🛍️ In Store', subtitle: 'Visitors inside the store', url: LIFF_URLS.inStore, color: '#EF4444' },
+        { title: '🔄 Flow', subtitle: 'Customer movement flow', url: LIFF_URLS.flow, color: '#7C3AED' },
+        { title: '📺 ADS', subtitle: 'Ad display analytics', url: LIFF_URLS.ads, color: '#2563EB' },
+        { title: '👁️ Viewer', subtitle: 'Viewer demographics', url: LIFF_URLS.viewer, color: '#F97316' },
+        { title: '✉️ Feedback', subtitle: 'Send feedback to admin', url: LIFF_URLS.feedback, color: '#0891B2' },
     ];
+
+    const bubbles = pages.map(p => ({
+        type: 'bubble',
+        size: 'kilo',
+        header: {
+            type: 'box',
+            layout: 'vertical',
+            contents: [],
+            backgroundColor: p.color,
+            height: '8px',
+            paddingAll: '0px',
+        },
+        body: {
+            type: 'box',
+            layout: 'vertical',
+            contents: [
+                { type: 'text', text: p.title, weight: 'bold', size: 'md', color: '#111827', wrap: true },
+                { type: 'text', text: p.subtitle, size: 'xs', color: '#6B7280', margin: 'sm', wrap: true },
+            ],
+            paddingAll: '16px',
+        },
+        footer: {
+            type: 'box',
+            layout: 'vertical',
+            contents: [
+                {
+                    type: 'button',
+                    action: { type: 'uri', label: 'Open', uri: p.url },
+                    style: 'primary',
+                    color: p.color,
+                    height: 'sm',
+                },
+            ],
+            paddingAll: '12px',
+        },
+    }));
 
     await axios.post(
         'https://api.line.me/v2/bot/message/reply',
-        { replyToken, messages },
+        {
+            replyToken,
+            messages: [{
+                type: 'flex',
+                altText: '📊 Smart Signage Dashboard',
+                contents: { type: 'carousel', contents: bubbles },
+            }],
+        },
         { headers: { Authorization: `Bearer ${LINE_ACCESS_TOKEN}` } }
     );
-}
-
-// ── Build a single flex card ──────────────────────────────────────────────────
-function makeFlexCard(title, subtitle, url, color) {
-    return {
-        type: 'flex',
-        altText: title,
-        contents: {
-            type: 'bubble',
-            header: {
-                type: 'box',
-                layout: 'vertical',
-                contents: [],
-                backgroundColor: color,
-                height: '6px',
-            },
-            body: {
-                type: 'box',
-                layout: 'vertical',
-                contents: [
-                    {
-                        type: 'text',
-                        text: title,
-                        weight: 'bold',
-                        size: 'lg',
-                        color: '#111827',
-                    },
-                    {
-                        type: 'text',
-                        text: subtitle,
-                        size: 'sm',
-                        color: '#6B7280',
-                        margin: 'sm',
-                    },
-                ],
-                paddingAll: '20px',
-            },
-            footer: {
-                type: 'box',
-                layout: 'vertical',
-                contents: [
-                    {
-                        type: 'button',
-                        action: {
-                            type: 'uri',
-                            label: 'Open',
-                            uri: url,
-                        },
-                        style: 'primary',
-                        color: color,
-                        height: 'sm',
-                    },
-                ],
-                paddingAll: '12px',
-            },
-        },
-    };
 }
 
 
