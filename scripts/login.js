@@ -6,7 +6,7 @@ const API = (typeof CONFIG !== 'undefined' && CONFIG.API_URL)
 
 // ── If already logged in, skip login page
 (function () {
-    const raw = localStorage.getItem('liff_shop');
+    const raw = sessionStorage.getItem('liff_shop');
     if (raw) {
         try {
             const session = JSON.parse(raw);

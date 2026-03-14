@@ -45,7 +45,7 @@ function getCurrentShop() {
 
 function getShopSession() {
     try {
-        const raw = localStorage.getItem('liff_shop');
+        const raw = sessionStorage.getItem('liff_shop')
         return raw ? JSON.parse(raw) : null;
     } catch {
         return null;
