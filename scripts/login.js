@@ -11,7 +11,9 @@ const API = (typeof CONFIG !== 'undefined' && CONFIG.API_URL)
         try {
             const session = JSON.parse(raw);
             if (session && session.shopname_key) {
-                window.location.href = 'summary.html';
+                const params = new URLSearchParams(window.location.search);
+                const redirect = params.get('redirect') || 'summary.html';
+                window.location.href = redirect;
             }
         } catch { }
     }
@@ -46,10 +48,12 @@ async function doLogin() {
             return;
         }
 
-        // Save to localStorage — persists across tabs and links
+        // Save to sessionStorage — clears when tab is closed
         sessionStorage.setItem('liff_shop', JSON.stringify(data.shop));
 
-        window.location.href = 'summary.html';
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect') || 'summary.html';
+        window.location.href = redirect;
 
     } catch (err) {
         showError('Connection error. Please try again.');

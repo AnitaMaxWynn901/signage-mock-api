@@ -28,12 +28,14 @@ function getCurrentShop() {
     try {
         const raw = sessionStorage.getItem('liff_shop');
         if (!raw) {
-            window.location.href = 'login.html';
+            const currentPage = window.location.pathname.split('/').pop();
+            window.location.href = `login.html?redirect=${currentPage}`;
             return null;
         }
         const session = JSON.parse(raw);
         if (!session || !session.shopname_key) {
-            window.location.href = 'login.html';
+            const currentPage = window.location.pathname.split('/').pop();
+            window.location.href = `login.html?redirect=${currentPage}`;
             return null;
         }
         return session.shopname_key;
