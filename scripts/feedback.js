@@ -8,7 +8,7 @@ const API = (typeof CONFIG !== 'undefined' && CONFIG.API_URL)
 function initFeedback() {
     const session = getShopSession();
     if (!session || !session.shopname_key) {
-        window.location.href = 'login.html';
+        window.location.href = 'login.html?redirect=feedback.html';
         return;
     }
     const iconEl = document.getElementById('shopIcon');
@@ -20,7 +20,7 @@ function initFeedback() {
 
 async function submitFeedback() {
     const session = getShopSession();
-    if (!session) { window.location.href = 'login.html'; return; }
+    if (!session) { window.location.href = 'login.html?redirect=feedback.html'; return; }
 
     const subject = document.getElementById('subject').value.trim();
     const message = document.getElementById('message').value.trim();
