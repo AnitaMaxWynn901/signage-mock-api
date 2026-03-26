@@ -26,7 +26,7 @@ function getApiUrl(endpoint) {
 
 function getCurrentShop() {
     try {
-        const raw = sessionStorage.getItem('liff_shop');
+        const raw = localStorage.getItem('liff_shop'); // ← change
         if (!raw) {
             const currentPage = window.location.pathname.split('/').pop();
             window.location.href = `login.html?redirect=${currentPage}`;
@@ -47,7 +47,7 @@ function getCurrentShop() {
 
 function getShopSession() {
     try {
-        const raw = sessionStorage.getItem('liff_shop')
+        const raw = localStorage.getItem('liff_shop'); // ← change
         return raw ? JSON.parse(raw) : null;
     } catch {
         return null;
@@ -55,6 +55,6 @@ function getShopSession() {
 }
 
 function logout() {
-    sessionStorage.removeItem('liff_shop');
+    localStorage.removeItem('liff_shop'); // ← change
     window.location.href = 'login.html';
 }

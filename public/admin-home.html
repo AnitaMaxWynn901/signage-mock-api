@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Home - Smart Signage</title>
+    <link rel="stylesheet" href="../style/base.css" />
+    <link rel="stylesheet" href="../style/components.css" />
+    <style>
+        /* ── Sidebar layout ── */
+        body {
+            padding: 0;
+        }
+
+        .admin-wrap {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        #adminSidebar {
+            width: 240px;
+            min-height: 100vh;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+            box-shadow: 2px 0 8px rgba(17, 24, 39, .04);
+        }
+
+        .admin-main {
+            margin-left: 240px;
+            flex: 1;
+            padding: 28px;
+            background: var(--bg);
+            min-height: 100vh;
+        }
+
+        /* ── Sidebar styles ── */
+        .sb-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sb-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .sb-title {
+            font-size: 14px;
+            font-weight: 900;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        .sb-sub {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .sb-nav {
+            flex: 1;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sb-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--muted);
+            text-decoration: none;
+            transition: all .12s;
+        }
+
+        .sb-item:hover {
+            background: var(--surface-2);
+            color: var(--text);
+        }
+
+        .sb-item.active {
+            background: #eef2ff;
+            color: var(--primary);
+        }
+
+        .sb-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sb-footer {
+            padding: 14px 14px 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        .sb-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .sb-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-size: 14px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .sb-email {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+        }
+
+        .sb-role {
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .sb-logout {
+            width: 100%;
+            padding: 9px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: var(--font);
+            transition: all .12s;
+        }
+
+        .sb-logout:hover {
+            background: #fff5f5;
+            color: var(--danger);
+            border-color: rgba(239, 68, 68, .2);
+        }
+
+        /* ── Home content ── */
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+            border-radius: var(--radius);
+            padding: 28px 28px 24px;
+            color: white;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::after {
+            content: "📊";
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 64px;
+            opacity: .15;
+        }
+
+        .welcome-card h2 {
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        .welcome-card p {
+            font-size: 13px;
+            opacity: .85;
+            font-weight: 600;
+        }
+
+        .welcome-card .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, .2);
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            margin-top: 12px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1100px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            text-decoration: none;
+            transition: box-shadow .12s, transform .12s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 99px 99px 0 0;
+        }
+
+        .stat-card:nth-child(1)::before {
+            background: var(--primary);
+        }
+
+        .stat-card:nth-child(2)::before {
+            background: var(--info);
+        }
+
+        .stat-card:nth-child(3)::before {
+            background: var(--warning);
+        }
+
+        .stat-card:nth-child(4)::before {
+            background: var(--success);
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sc-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .10em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .sc-value {
+            font-size: 38px;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .stat-card:nth-child(1) .sc-value {
+            color: var(--primary);
+        }
+
+        .stat-card:nth-child(2) .sc-value {
+            color: var(--info);
+        }
+
+        .stat-card:nth-child(3) .sc-value {
+            color: var(--warning);
+        }
+
+        .stat-card:nth-child(4) .sc-value {
+            color: var(--success);
+        }
+
+        .sc-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .sc-link {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .quick-nav {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        @media (max-width: 900px) {
+            .quick-nav {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .quick-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: box-shadow .12s, transform .12s;
+        }
+
+        .quick-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .quick-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .quick-card:nth-child(1) .quick-icon {
+            background: rgba(79, 70, 229, .10);
+        }
+
+        .quick-card:nth-child(2) .quick-icon {
+            background: rgba(14, 165, 233, .10);
+        }
+
+        .quick-card:nth-child(3) .quick-icon {
+            background: rgba(245, 158, 11, .10);
+        }
+
+        .quick-card:nth-child(4) .quick-icon {
+            background: rgba(22, 163, 74, .10);
+        }
+
+        .quick-label {
+            font-size: 14px;
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .quick-sub {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--muted);
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-wrap">
+        <div id="adminSidebar"></div>
+
+        <main class="admin-main">
+            <div id="welcomeCard" class="welcome-card">
+                <h2 id="welcomeText">Welcome back 👋</h2>
+                <p>Here's what's happening with your Smart Signage system today.</p>
+                <div class="role-badge" id="roleBadge">Loading...</div>
+            </div>
+
+            <div class="section-title">System Overview</div>
+            <div class="stats-row">
+                <a href="shops.html" class="stat-card" style="display:block;color:inherit;">
+                    <div>
+                        <div class="sc-label">Total Shops</div>
+                        <div class="sc-value" id="statShops">—</div>
+                        <div class="sc-link">View all →</div>
+                    </div>
+                    <div class="sc-icon">🏪</div>
+                </a>
+                <a href="area_devices.html" class="stat-card" style="display:block;color:inherit;">
+                    <div>
+                        <div class="sc-label">Devices</div>
+                        <div class="sc-value" id="statDevices">—</div>
+                        <div class="sc-link">Manage →</div>
+                    </div>
+                    <div class="sc-icon">📡</div>
+                </a>
+                <a href="contact.html" class="stat-card" style="display:block;color:inherit;">
+                    <div>
+                        <div class="sc-label">Unread Messages</div>
+                        <div class="sc-value" id="statMessages">—</div>
+                        <div class="sc-link">View inbox →</div>
+                    </div>
+                    <div class="sc-icon">✉️</div>
+                </a>
+                <a href="users.html" class="stat-card" style="display:block;color:inherit;">
+                    <div>
+                        <div class="sc-label">Active Users</div>
+                        <div class="sc-value" id="statUsers">—</div>
+                        <div class="sc-link">Manage →</div>
+                    </div>
+                    <div class="sc-icon">👥</div>
+                </a>
+            </div>
+
+            <div class="section-title">Quick Navigation</div>
+            <div class="quick-nav">
+                <a href="shops.html" class="quick-card">
+                    <div class="quick-icon">🏪</div>
+                    <div>
+                        <div class="quick-label">Shop Management</div>
+                        <div class="quick-sub">Add, edit, and manage all registered stores</div>
+                    </div>
+                </a>
+                <a href="area_devices.html" class="quick-card">
+                    <div class="quick-icon">📡</div>
+                    <div>
+                        <div class="quick-label">Area Devices</div>
+                        <div class="quick-sub">Manage WiFi sensors and link them to shops</div>
+                    </div>
+                </a>
+                <a href="contact.html" class="quick-card">
+                    <div class="quick-icon">✉️</div>
+                    <div>
+                        <div class="quick-label">Contact Messages</div>
+                        <div class="quick-sub">View and reply to shop owner messages</div>
+                    </div>
+                </a>
+                <a href="users.html" class="quick-card">
+                    <div class="quick-icon">👥</div>
+                    <div>
+                        <div class="quick-label">Users & Roles</div>
+                        <div class="quick-sub">Manage admin panel access and permissions</div>
+                    </div>
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <script src="../scripts/admin-auth.js"></script>
+    <script src="../scripts/admin-sidebar.js"></script>
+    <script>
+        const API = 'https://signage-mock-api.onrender.com';
+
+        async function loadStats() {
+            try {
+                const [shopsRes, devicesRes, messagesRes, usersRes] = await Promise.all([
+                    fetch(`${API}/api/v3/shops`).then(r => r.json()),
+                    fetch(`${API}/api/v3/devices`).then(r => r.json()),
+                    fetch(`${API}/api/v3/messages`).then(r => r.json()),
+                    fetch(`${API}/api/v3/users`).then(r => r.json()),
+                ]);
+
+                document.getElementById('statShops').textContent = shopsRes.shops?.length ?? '—';
+                document.getElementById('statDevices').textContent = devicesRes.devices?.length ?? '—';
+
+                const unread = Array.isArray(messagesRes) ? messagesRes.filter(m => m.message_status === 'UNREAD').length : '—';
+                document.getElementById('statMessages').textContent = unread;
+
+                const activeUsers = Array.isArray(usersRes) ? usersRes.filter(u => u.active).length : '—';
+                document.getElementById('statUsers').textContent = activeUsers;
+            } catch (err) {
+                console.error('Failed to load stats', err);
+            }
+        }
+
+        // Init
+        const session = requireAdminSession();
+        if (session) {
+            initAdminSidebar('home');
+
+            document.getElementById('welcomeText').textContent = `Welcome back, ${session.email.split('@')[0]} 👋`;
+            const badge = document.getElementById('roleBadge');
+            if (session.role === 'admin') {
+                badge.textContent = '🛡️ Admin — Full Access';
+            } else {
+                badge.textContent = '👤 User — View Only';
+                badge.style.background = 'rgba(255,255,255,.15)';
+            }
+
+            loadStats();
+        }
+    </script>
+</body>
+
+</html>

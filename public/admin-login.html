@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login - Smart Signage</title>
+    <link rel="stylesheet" href="../style/base.css" />
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-wrap {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .brand-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            display: grid;
+            place-items: center;
+            font-size: 32px;
+            margin: 0 auto 16px;
+            box-shadow: 0 12px 32px rgba(79, 70, 229, .28);
+        }
+
+        .brand h1 {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin: 0 0 4px;
+        }
+
+        .brand p {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .login-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 30px 26px;
+        }
+
+        .login-card h2 {
+            font-size: 17px;
+            font-weight: 900;
+            margin: 0 0 4px;
+        }
+
+        .login-card .sub {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 600;
+            margin: 0 0 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 900;
+            color: var(--muted);
+            letter-spacing: .10em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 13px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            font-family: var(--font);
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .form-group input:focus {
+            border-color: rgba(79, 70, 229, .5);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .10);
+            background: #fff;
+        }
+
+        .form-group input::placeholder {
+            color: #c4c9d4;
+            font-weight: 500;
+        }
+
+        .error-msg {
+            background: #fff5f5;
+            border: 1px solid rgba(239, 68, 68, .25);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--danger);
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-msg.show {
+            display: flex;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: var(--font);
+            transition: background .15s, transform .1s;
+            margin-top: 4px;
+        }
+
+        .login-btn:hover {
+            background: #4338ca;
+        }
+
+        .login-btn:active {
+            transform: translateY(1px);
+        }
+
+        .login-btn:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .demo-hint {
+            background: #eff6ff;
+            border: 1px solid rgba(59, 130, 246, .25);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #1d4ed8;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-wrap">
+        <div class="brand">
+            <div class="brand-icon">📊</div>
+            <h1>Smart Signage</h1>
+            <p>Admin Dashboard</p>
+        </div>
+
+        <div class="login-card">
+            <h2>Sign in to admin panel</h2>
+            <p class="sub">Enter your admin email and password</p>
+
+            <div class="demo-hint">
+                🔑 Demo password for all accounts: <strong>nimman2025</strong>
+            </div>
+
+            <div class="error-msg" id="errorMsg">
+                <span>⚠️</span>
+                <span id="errorText">Invalid email or password</span>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="emailInput" placeholder="admin@nimman.com" autocomplete="off" />
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="passwordInput" placeholder="••••••••••" />
+            </div>
+
+            <button class="login-btn" id="loginBtn" onclick="doAdminLogin()">Sign In</button>
+        </div>
+
+        <div class="login-footer">
+            For access, contact your system administrator.
+        </div>
+    </div>
+
+    <script>
+        const API = 'https://signage-mock-api.onrender.com';
+
+        // Skip if already logged in
+        (function () {
+            const raw = sessionStorage.getItem('admin_session');
+            if (raw) {
+                try {
+                    const s = JSON.parse(raw);
+                    if (s && s.email) window.location.href = 'admin-home.html';
+                } catch { }
+            }
+        })();
+
+        document.addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
+
+        async function doAdminLogin() {
+            const email = document.getElementById('emailInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+
+            if (!email || !password) {
+                showError('Please enter both email and password.');
+                return;
+            }
+
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
+            hideError();
+
+            try {
+                const res = await fetch(`${API}/api/v3/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    showError(data.message || 'Invalid email or password.');
+                    return;
+                }
+
+                sessionStorage.setItem('admin_session', JSON.stringify(data.user));
+                window.location.href = 'admin-home.html';
+
+            } catch (err) {
+                showError('Connection error. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        }
+
+        function showError(msg) {
+            document.getElementById('errorText').textContent = msg;
+            document.getElementById('errorMsg').classList.add('show');
+        }
+        function hideError() {
+            document.getElementById('errorMsg').classList.remove('show');
+        }
+    </script>
+</body>
+
+</html>

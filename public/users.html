@@ -4,13 +4,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Users & Roles - Admin</title>
-
+    <title>Users & Roles - Smart Signage</title>
     <link rel="stylesheet" href="../style/base.css" />
     <link rel="stylesheet" href="../style/components.css" />
-
+    <link rel="stylesheet" href="../style/admin.css" />
     <style>
-        /* ── Stat cards ── */
         .stat-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -18,7 +16,7 @@
             margin-bottom: 20px;
         }
 
-        @media (max-width: 700px) {
+        @media(max-width:700px) {
             .stat-row {
                 grid-template-columns: 1fr;
             }
@@ -96,7 +94,6 @@
             font-size: 16px;
         }
 
-        /* ── Toolbar ── */
         .toolbar {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -122,11 +119,6 @@
             color: var(--text);
             outline: none;
             font-family: var(--font);
-        }
-
-        .toolbar input[type="text"]:focus {
-            border-color: rgba(79, 70, 229, .4);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, .08);
         }
 
         .toolbar select {
@@ -159,10 +151,6 @@
             transition: background .12s;
         }
 
-        .tbtn:hover {
-            background: #f0f1ff;
-        }
-
         .tbtn.primary {
             background: var(--primary);
             color: #fff;
@@ -173,7 +161,6 @@
             background: #4338ca;
         }
 
-        /* ── Table ── */
         .table-panel {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -226,7 +213,6 @@
             vertical-align: middle;
         }
 
-        /* avatar */
         .user-avatar {
             width: 34px;
             height: 34px;
@@ -264,7 +250,6 @@
             margin-left: 6px;
         }
 
-        /* role badge */
         .role-badge {
             display: inline-flex;
             align-items: center;
@@ -289,7 +274,6 @@
             border: 1px solid var(--border);
         }
 
-        /* toggle */
         .toggle-wrap {
             display: flex;
             align-items: center;
@@ -317,7 +301,7 @@
         }
 
         .toggle.disabled .toggle-track {
-            opacity: 0.4;
+            opacity: .4;
             cursor: not-allowed;
         }
 
@@ -361,7 +345,6 @@
             white-space: nowrap;
         }
 
-        /* action buttons */
         .act-btn {
             display: inline-flex;
             align-items: center;
@@ -376,17 +359,12 @@
             transition: opacity .12s;
         }
 
-        .act-btn:hover {
-            opacity: .75;
-        }
-
         .act-btn.remove {
             background: rgba(239, 68, 68, .08);
             border-color: rgba(239, 68, 68, .22);
             color: var(--danger);
         }
 
-        /* table footer */
         .table-footer {
             display: flex;
             justify-content: space-between;
@@ -398,14 +376,13 @@
             font-weight: 600;
         }
 
-        /* ── Modal ── */
         .modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
             background: rgba(17, 24, 39, .45);
             backdrop-filter: blur(3px);
-            z-index: 100;
+            z-index: 200;
             align-items: center;
             justify-content: center;
             padding: 20px;
@@ -463,14 +440,6 @@
             color: var(--text);
             outline: none;
             font-family: var(--font);
-            transition: border-color .15s, box-shadow .15s;
-        }
-
-        .modal-group input:focus,
-        .modal-group select:focus {
-            border-color: rgba(79, 70, 229, .45);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, .10);
-            background: #fff;
         }
 
         .modal-hint {
@@ -499,11 +468,6 @@
             font-family: var(--font);
         }
 
-        .btn-cancel:hover {
-            background: #f3f4f6;
-            color: var(--text);
-        }
-
         .btn-save {
             padding: 10px 22px;
             border-radius: 12px;
@@ -516,10 +480,6 @@
             font-family: var(--font);
         }
 
-        .btn-save:hover {
-            background: #4338ca;
-        }
-
         .btn-save:disabled {
             opacity: .65;
             cursor: not-allowed;
@@ -528,103 +488,91 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="admin-wrap">
+        <div id="adminSidebar"></div>
+        <main class="admin-main">
 
-        <!-- Header -->
-        <div class="header-card" style="margin-bottom:20px;">
-            <div class="shop-icon">👥</div>
-            <div class="shop-info">
-                <h1>Users & Roles</h1>
-                <p class="subtitle">Manage admin panel access and permissions</p>
+            <div class="header-card" style="margin-bottom:20px;">
+                <div class="shop-icon">👥</div>
+                <div class="shop-info">
+                    <h1>Users & Roles</h1>
+                    <p class="subtitle">Manage admin panel access and permissions</p>
+                </div>
+                <div class="live-badge">Live</div>
             </div>
-            <div class="live-badge">Live</div>
-        </div>
 
-        <!-- Loading / Error -->
-        <div id="loading" class="loading" style="margin-bottom:16px;">
-            <h2>Loading Users...</h2>
-        </div>
+            <div id="loading" class="loading" style="margin-bottom:16px;">
+                <h2>Loading Users...</h2>
+            </div>
+            <div id="error" class="error" style="display:none;margin-bottom:16px;">
+                <h3>Error</h3>
+                <p id="errorMessage"></p>
+            </div>
 
-        <div id="error" class="error" style="display:none; margin-bottom:16px;">
-            <h3>Error</h3>
-            <p id="errorMessage"></p>
-        </div>
-
-        <div id="mainContent" style="display:none;">
-
-            <!-- Stat cards -->
-            <div class="stat-row">
-                <div class="stat-card total">
-                    <div>
-                        <div class="s-label">Total Users</div>
-                        <div class="s-value" id="statTotal">—</div>
+            <div id="mainContent" style="display:none;">
+                <div class="stat-row">
+                    <div class="stat-card total">
+                        <div>
+                            <div class="s-label">Total Users</div>
+                            <div class="s-value" id="statTotal">—</div>
+                        </div>
+                        <div class="s-icon">👥</div>
                     </div>
-                    <div class="s-icon">👥</div>
-                </div>
-                <div class="stat-card admins">
-                    <div>
-                        <div class="s-label">Admins</div>
-                        <div class="s-value" id="statAdmins">—</div>
+                    <div class="stat-card admins">
+                        <div>
+                            <div class="s-label">Admins</div>
+                            <div class="s-value" id="statAdmins">—</div>
+                        </div>
+                        <div class="s-icon">🛡️</div>
                     </div>
-                    <div class="s-icon">🛡️</div>
-                </div>
-                <div class="stat-card active">
-                    <div>
-                        <div class="s-label">Active</div>
-                        <div class="s-value" id="statActive">—</div>
+                    <div class="stat-card active">
+                        <div>
+                            <div class="s-label">Active</div>
+                            <div class="s-value" id="statActive">—</div>
+                        </div>
+                        <div class="s-icon">✅</div>
                     </div>
-                    <div class="s-icon">✅</div>
+                </div>
+
+                <div class="toolbar">
+                    <input type="text" id="searchInput" placeholder="🔍  Search by email..." oninput="renderTable()" />
+                    <select id="roleFilter" onchange="renderTable()">
+                        <option value="">All roles</option>
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                    </select>
+                    <button class="tbtn" onclick="exportCSV()">📤 Export CSV</button>
+                    <button class="tbtn primary" id="addUserBtn" onclick="openModal()">+ Add User</button>
+                </div>
+
+                <div class="table-panel">
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer"><span id="footerLabel">Showing 0 of 0 users</span></div>
                 </div>
             </div>
-
-            <!-- Toolbar -->
-            <div class="toolbar">
-                <input type="text" id="searchInput" placeholder="🔍  Search by email..." oninput="renderTable()" />
-                <select id="roleFilter" onchange="renderTable()">
-                    <option value="">All roles</option>
-                    <option value="admin">Admin</option>
-                    <option value="user">User</option>
-                </select>
-                <button class="tbtn" onclick="exportCSV()">📤 Export CSV</button>
-                <button class="tbtn primary" onclick="openModal()">+ Add User</button>
-            </div>
-
-            <!-- Table -->
-            <div class="table-panel">
-                <div class="table-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody"></tbody>
-                    </table>
-                </div>
-                <div class="table-footer">
-                    <span id="footerLabel">Showing 0 of 0 users</span>
-                </div>
-            </div>
-
-        </div><!-- /mainContent -->
+        </main>
     </div>
 
-    <!-- Add User Modal -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <h3>Add User</h3>
             <p class="modal-sub">Add a new member to the admin panel</p>
-
-            <div class="modal-group">
-                <label>Email *</label>
-                <input type="email" id="fEmail" placeholder="user@nimman.com" />
-            </div>
-
+            <div class="modal-group"><label>Email *</label><input type="email" id="fEmail"
+                    placeholder="user@nimman.com" /></div>
             <div class="modal-group">
                 <label>Role</label>
                 <select id="fRole">
@@ -633,7 +581,6 @@
                 </select>
                 <div class="modal-hint">Admins can manage shops, devices, and messages. Users can only view.</div>
             </div>
-
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal()">Cancel</button>
                 <button class="btn-save" id="saveBtn" onclick="saveUser()">Add User</button>
@@ -642,7 +589,15 @@
     </div>
 
     <script src="../scripts/config.js"></script>
+    <script src="../scripts/admin-auth.js"></script>
+    <script src="../scripts/admin-sidebar.js"></script>
     <script src="../scripts/users.js"></script>
+    <script>
+        initAdminSidebar('users');
+        if (!isAdminRole()) {
+            document.getElementById('addUserBtn').style.display = 'none';
+        }
+    </script>
 </body>
 
 </html>

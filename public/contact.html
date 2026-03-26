@@ -4,13 +4,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Contact Messages - Admin</title>
-
+    <title>Contact Messages - Smart Signage</title>
     <link rel="stylesheet" href="../style/base.css" />
     <link rel="stylesheet" href="../style/components.css" />
-
+    <link rel="stylesheet" href="../style/admin.css" />
     <style>
-        /* ── Stat cards ── */
         .stat-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -18,15 +16,9 @@
             margin-bottom: 20px;
         }
 
-        @media (max-width: 900px) {
+        @media(max-width:900px) {
             .stat-row {
                 grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 560px) {
-            .stat-row {
-                grid-template-columns: 1fr;
             }
         }
 
@@ -80,7 +72,6 @@
             margin-top: 4px;
         }
 
-        /* ── Toolbar ── */
         .toolbar {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -108,11 +99,6 @@
             font-family: var(--font);
         }
 
-        .toolbar input[type="text"]:focus {
-            border-color: rgba(79, 70, 229, .4);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, .08);
-        }
-
         .filter-group {
             display: flex;
             gap: 6px;
@@ -128,14 +114,8 @@
             font-weight: 800;
             color: var(--muted);
             cursor: pointer;
-            transition: all 0.15s;
+            transition: all .15s;
             font-family: var(--font);
-        }
-
-        .filter-btn:hover {
-            background: #eef2ff;
-            color: var(--primary);
-            border-color: rgba(79, 70, 229, .2);
         }
 
         .filter-btn.active {
@@ -144,7 +124,6 @@
             border-color: rgba(79, 70, 229, .35);
         }
 
-        /* ── Split layout ── */
         .split {
             display: grid;
             grid-template-columns: 340px 1fr;
@@ -152,13 +131,12 @@
             align-items: start;
         }
 
-        @media (max-width: 900px) {
+        @media(max-width:900px) {
             .split {
                 grid-template-columns: 1fr;
             }
         }
 
-        /* ── Message list ── */
         .msg-list {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -171,9 +149,8 @@
             padding: 14px 16px;
             border-bottom: 1px solid var(--border);
             cursor: pointer;
-            transition: background 0.12s;
+            transition: background .12s;
             border-left: 3px solid transparent;
-            position: relative;
         }
 
         .msg-item:last-child {
@@ -191,10 +168,6 @@
 
         .msg-item.unread-item {
             border-left-color: var(--warning);
-        }
-
-        .msg-item.active.unread-item {
-            border-left-color: var(--primary);
         }
 
         .msg-top {
@@ -264,7 +237,6 @@
             font-size: 13px;
         }
 
-        /* ── Detail panel ── */
         .detail-panel {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -337,7 +309,6 @@
             gap: 16px;
         }
 
-        /* shop message bubble */
         .bubble-row {
             display: flex;
             gap: 10px;
@@ -403,7 +374,6 @@
             border-radius: 14px 4px 14px 14px;
         }
 
-        /* ── Actions bar ── */
         .detail-actions {
             padding: 14px 20px;
             border-top: 1px solid var(--border);
@@ -419,7 +389,7 @@
             font-weight: 800;
             cursor: pointer;
             font-family: var(--font);
-            transition: all 0.15s;
+            transition: all .15s;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -432,19 +402,10 @@
             justify-content: center;
         }
 
-        .action-btn.reply:hover {
-            background: #4338ca;
-        }
-
         .action-btn.close-btn {
             background: var(--surface-2);
             color: var(--muted);
             border: 1px solid var(--border);
-        }
-
-        .action-btn.close-btn:hover {
-            background: #f3f4f6;
-            color: var(--text);
         }
 
         .action-btn.delete-btn {
@@ -453,11 +414,6 @@
             border: 1px solid rgba(239, 68, 68, .2);
         }
 
-        .action-btn.delete-btn:hover {
-            background: #fee2e2;
-        }
-
-        /* ── Reply modal ── */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -520,13 +476,6 @@
             outline: none;
             resize: vertical;
             box-sizing: border-box;
-            transition: border-color 0.15s, box-shadow 0.15s;
-        }
-
-        .reply-textarea:focus {
-            border-color: rgba(79, 70, 229, .45);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, .10);
-            background: #fff;
         }
 
         .modal-footer {
@@ -548,11 +497,6 @@
             font-family: var(--font);
         }
 
-        .cancel-btn:hover {
-            background: #f3f4f6;
-            color: var(--text);
-        }
-
         .send-reply-btn {
             padding: 10px 22px;
             border-radius: 12px;
@@ -565,80 +509,68 @@
             font-family: var(--font);
         }
 
-        .send-reply-btn:hover {
-            background: #4338ca;
-        }
-
         .send-reply-btn:disabled {
-            opacity: 0.65;
+            opacity: .65;
             cursor: not-allowed;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
+    <div class="admin-wrap">
+        <div id="adminSidebar"></div>
+        <main class="admin-main">
 
-        <!-- Header -->
-        <div class="header-card" style="margin-bottom:20px;">
-            <div class="shop-icon">✉️</div>
-            <div class="shop-info">
-                <h1>Contact Messages</h1>
-                <p class="subtitle">Messages from shops and users</p>
-            </div>
-            <div class="live-badge">Live</div>
-        </div>
-
-        <!-- Stat cards -->
-        <div class="stat-row">
-            <div class="stat-card total">
-                <div class="s-label">Total</div>
-                <div class="s-value" id="statTotal">—</div>
-            </div>
-            <div class="stat-card unread">
-                <div class="s-label">Unread</div>
-                <div class="s-value" id="statUnread">—</div>
-            </div>
-            <div class="stat-card replied">
-                <div class="s-label">Replied</div>
-                <div class="s-value" id="statReplied">—</div>
-            </div>
-            <div class="stat-card closed">
-                <div class="s-label">Closed</div>
-                <div class="s-value" id="statClosed">—</div>
-            </div>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="toolbar">
-            <input type="text" id="searchInput" placeholder="🔍  Search by shop, phone, subject, ID..."
-                oninput="renderList()" />
-            <div class="filter-group">
-                <button class="filter-btn active" data-filter="All" onclick="setFilter(this)">All</button>
-                <button class="filter-btn" data-filter="UNREAD" onclick="setFilter(this)">Unread</button>
-                <button class="filter-btn" data-filter="REPLIED" onclick="setFilter(this)">Replied</button>
-                <button class="filter-btn" data-filter="CLOSED" onclick="setFilter(this)">Closed</button>
-            </div>
-        </div>
-
-        <!-- Split layout -->
-        <div class="split">
-
-            <!-- Message list -->
-            <div class="msg-list" id="msgList">
-                <div class="msg-list-empty">Loading messages...</div>
+            <div class="header-card" style="margin-bottom:20px;">
+                <div class="shop-icon">✉️</div>
+                <div class="shop-info">
+                    <h1>Contact Messages</h1>
+                    <p class="subtitle">Messages from shops and users</p>
+                </div>
+                <div class="live-badge">Live</div>
             </div>
 
-            <!-- Detail panel -->
-            <div class="detail-panel" id="detailPanel">
-                <div class="detail-empty">Select a message from the list</div>
+            <div class="stat-row">
+                <div class="stat-card total">
+                    <div class="s-label">Total</div>
+                    <div class="s-value" id="statTotal">—</div>
+                </div>
+                <div class="stat-card unread">
+                    <div class="s-label">Unread</div>
+                    <div class="s-value" id="statUnread">—</div>
+                </div>
+                <div class="stat-card replied">
+                    <div class="s-label">Replied</div>
+                    <div class="s-value" id="statReplied">—</div>
+                </div>
+                <div class="stat-card closed">
+                    <div class="s-label">Closed</div>
+                    <div class="s-value" id="statClosed">—</div>
+                </div>
             </div>
 
-        </div>
+            <div class="toolbar">
+                <input type="text" id="searchInput" placeholder="🔍  Search by shop, phone, subject, ID..."
+                    oninput="renderList()" />
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="All" onclick="setFilter(this)">All</button>
+                    <button class="filter-btn" data-filter="UNREAD" onclick="setFilter(this)">Unread</button>
+                    <button class="filter-btn" data-filter="REPLIED" onclick="setFilter(this)">Replied</button>
+                    <button class="filter-btn" data-filter="CLOSED" onclick="setFilter(this)">Closed</button>
+                </div>
+            </div>
 
+            <div class="split">
+                <div class="msg-list" id="msgList">
+                    <div class="msg-list-empty">Loading messages...</div>
+                </div>
+                <div class="detail-panel" id="detailPanel">
+                    <div class="detail-empty">Select a message from the list</div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- Reply Modal -->
     <div class="modal-overlay" id="replyModal" style="display:none;" onclick="closeModalOnBg(event)">
         <div class="modal-card">
             <h2 id="modalTitle">Reply to MSG-000</h2>
@@ -656,7 +588,12 @@
     </div>
 
     <script src="../scripts/config.js"></script>
+    <script src="../scripts/admin-auth.js"></script>
+    <script src="../scripts/admin-sidebar.js"></script>
     <script src="../scripts/contact.js"></script>
+    <script>
+        initAdminSidebar('messages');
+    </script>
 </body>
 
 </html>
