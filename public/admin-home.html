@@ -520,6 +520,13 @@
         if (session) {
             initAdminSidebar('home');
 
+            if (session.role !== 'admin') {
+                // Disable all stat-card and quick-card links
+                document.querySelectorAll('.stat-card, .quick-card').forEach(link => {
+                    link.setAttribute('href', '#'); // Remove the destination
+                    link.style.pointerEvents = 'none'; // Make it unclickable
+                });
+            }
             document.getElementById('welcomeText').textContent = `Welcome back, ${session.email.split('@')[0]} 👋`;
             const badge = document.getElementById('roleBadge');
             if (session.role === 'admin') {

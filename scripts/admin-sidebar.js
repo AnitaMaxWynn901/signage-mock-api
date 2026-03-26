@@ -50,15 +50,27 @@ function initAdminSidebar(activePage) {
     `;
 
     // Show read-only banner if user role
+    // Show read-only banner if user role
     if (!isAdmin) {
+        // 1. Add a global class to the body for CSS-based hiding
+        document.body.classList.add('user-is-readonly');
+
+        // 2. Create the banner
         const banner = document.createElement('div');
         banner.className = 'readonly-banner';
         banner.innerHTML = '👁️ View Only — Contact an admin to make changes';
         document.body.insertBefore(banner, document.body.firstChild);
 
-        // Hide all action buttons
-        document.querySelectorAll('.act-btn, .tbtn.primary, .tbtn-primary, [onclick*="openModal"], [onclick*="openAdd"], [onclick*="importCSV"], [onclick*="deleteShop"], [onclick*="editShop"], [onclick*="deleteDevice"], [onclick*="openEditModal"], [onclick*="openAddModal"], [onclick*="deleteMessage"], [onclick*="openModal"]').forEach(el => {
-            el.style.display = 'none';
-        });
+        // 3. Optional: Extra JS safety to remove any leftover elements 
+        // that might have loaded before this script
+        const hideActionElements = () => {
+            document.querySelectorAll('.act-btn, .tbtn, .sb-logout + button, [onclick*="open"], [onclick*="delete"], [onclick*="edit"], [onclick*="import"]').forEach(el => {
+                el.style.display = 'none';
+            });
+        };
+
+        hideActionElements();
+        // Run again after a short delay to catch late-loading items
+        setTimeout(hideActionElements, 1000);
     }
 }
