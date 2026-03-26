@@ -102,3 +102,37 @@ a {
     margin-bottom: 6px;
     font-size: 14px;
 }
+
+/* Styles for Read-Only Mode */
+body.user-is-readonly .act-btn,
+body.user-is-readonly .tbtn.primary,
+body.user-is-readonly .tbtn-primary,
+body.user-is-readonly button[onclick*="open"],
+body.user-is-readonly button[onclick*="delete"],
+body.user-is-readonly button[onclick*="edit"],
+body.user-is-readonly .sc-link,
+/* Hides "Manage →" on home cards */
+body.user-is-readonly .quick-nav
+
+/* Optional: Hide entire quick nav if preferred */
+    {
+    display: none !important;
+}
+
+/* Make cards look non-clickable for non-admins */
+body.user-is-readonly .stat-card,
+body.user-is-readonly .quick-card {
+    cursor: default;
+    pointer-events: none;
+    /* Disables clicking the cards entirely */
+}
+
+.readonly-banner {
+    background: #fff7ed;
+    color: #9a3412;
+    padding: 10px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    border-bottom: 1px solid #ffedd5;
+}

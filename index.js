@@ -626,6 +626,68 @@ app.delete('/api/v3/users/:id', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+// ════════════════════════════════════════════════════════
+// ADMIN LOGIN ENDPOINT — Add this to your index.js
+// Place BEFORE the app.listen() call
+// ════════════════════════════════════════════════════════
+
+// POST /api/v3/admin/login
+// Body: { email, password }
+// For POC: password is fixed as "nimman2025" for all users
+app.post('/api/v3/admin/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email and password are required'
+            });
+        }
+
+        // POC: fixed demo password for all users
+        if (password !== 'nimman2025') {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid email or password'
+            });
+        }
+
+        const { data, error } = await supabase
+            .from('users')
+            .select('id, email, role, active')
+            .eq('email', email.trim().toLowerCase())
+            .single();
+
+        if (error || !data) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid email or password'
+            });
+        }
+
+        if (!data.active) {
+            return res.status(403).json({
+                success: false,
+                message: 'Your account has been suspended'
+            });
+        }
+
+        res.json({
+            success: true,
+            user: {
+                id: data.id,
+                email: data.email,
+                role: data.role,
+            }
+        });
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 // ============================================
 // START SERVER
 // ============================================

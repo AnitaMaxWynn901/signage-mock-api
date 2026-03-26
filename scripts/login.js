@@ -6,7 +6,7 @@ const API = (typeof CONFIG !== 'undefined' && CONFIG.API_URL)
 
 // ── If already logged in, skip login page
 (function () {
-    const raw = sessionStorage.getItem('liff_shop');
+    const raw = localStorage.getItem('liff_shop');
     if (raw) {
         try {
             const session = JSON.parse(raw);
@@ -48,8 +48,8 @@ async function doLogin() {
             return;
         }
 
-        // Save to sessionStorage — clears when tab is closed
-        sessionStorage.setItem('liff_shop', JSON.stringify(data.shop));
+        // Save to localStorage — persists across tabs
+        localStorage.setItem('liff_shop', JSON.stringify(data.shop)); // ← inside try block
 
         const params = new URLSearchParams(window.location.search);
         const redirect = params.get('redirect') || 'summary.html';

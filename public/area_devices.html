@@ -5,12 +5,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Area Devices - Smart Signage</title>
-
     <link rel="stylesheet" href="../style/base.css" />
     <link rel="stylesheet" href="../style/components.css" />
-
+    <link rel="stylesheet" href="../style/admin.css" />
     <style>
-        /* ── Stat cards ── */
         .stat-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -18,15 +16,9 @@
             margin-bottom: 18px;
         }
 
-        @media (max-width: 900px) {
+        @media(max-width:900px) {
             .stat-row {
                 grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 560px) {
-            .stat-row {
-                grid-template-columns: 1fr 1fr;
             }
         }
 
@@ -113,7 +105,6 @@
             flex-shrink: 0;
         }
 
-        /* ── Toolbar ── */
         .toolbar {
             display: flex;
             gap: 10px;
@@ -152,11 +143,6 @@
             color: var(--text);
         }
 
-        .toolbar input[type="search"]:focus {
-            border-color: rgba(79, 70, 229, .40);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, .10);
-        }
-
         .tbtn-primary {
             display: inline-flex;
             align-items: center;
@@ -176,7 +162,6 @@
             background: #4338ca;
         }
 
-        /* ── Table ── */
         .table-panel {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -244,7 +229,6 @@
             font-weight: 700;
         }
 
-        /* shop chips */
         .chips {
             display: flex;
             flex-wrap: wrap;
@@ -271,12 +255,6 @@
             color: var(--info);
         }
 
-        .chip-shop .dot-inactive {
-            color: var(--danger);
-            font-size: 9px;
-        }
-
-        /* toggle */
         .toggle-wrap {
             display: flex;
             align-items: center;
@@ -343,7 +321,6 @@
             white-space: nowrap;
         }
 
-        /* action buttons */
         .actions-cell {
             display: flex;
             gap: 6px;
@@ -396,7 +373,6 @@
             font-weight: 600;
         }
 
-        /* ── Modals ── */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -460,12 +436,6 @@
             color: var(--text);
         }
 
-        .modal-group input:focus,
-        .modal-group select:focus {
-            border-color: rgba(79, 70, 229, .40);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, .10);
-        }
-
         .modal-footer {
             display: flex;
             gap: 10px;
@@ -493,11 +463,6 @@
             border-color: var(--primary);
         }
 
-        .btn-save:hover {
-            background: #4338ca;
-        }
-
-        /* link-shops modal */
         .link-modal {
             max-width: 560px;
         }
@@ -514,11 +479,6 @@
             color: var(--text);
             margin-bottom: 12px;
             box-sizing: border-box;
-        }
-
-        .link-search:focus {
-            border-color: rgba(79, 70, 229, .40);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, .10);
         }
 
         .shop-list {
@@ -538,10 +498,6 @@
             cursor: pointer;
             border: 1px solid transparent;
             transition: background .12s;
-        }
-
-        .shop-check-row:hover {
-            background: rgba(79, 70, 229, .06);
         }
 
         .shop-check-row.checked {
@@ -591,11 +547,6 @@
             color: var(--success);
         }
 
-        .shop-status-pill.inactive {
-            background: var(--surface-2);
-            color: var(--muted);
-        }
-
         .link-footer {
             display: flex;
             justify-content: space-between;
@@ -612,124 +563,106 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="admin-wrap">
+        <div id="adminSidebar"></div>
+        <main class="admin-main">
 
-        <!-- Header -->
-        <div class="header-card" style="margin-bottom:18px;">
-            <div class="shop-icon">📡</div>
-            <div class="shop-info">
-                <h1>Area Devices</h1>
-                <p class="subtitle">Manage equipment and connect to stores</p>
-            </div>
-            <div class="live-badge" id="deviceCountBadge">0 devices</div>
-        </div>
-
-        <!-- Loading / Error -->
-        <div id="loading" class="loading" style="margin-bottom:16px;">
-            <h2>📡 Loading Devices...</h2>
-        </div>
-        <div id="error" class="error" style="display:none; margin-bottom:16px;">
-            <h3>Error</h3>
-            <p id="errorMessage"></p>
-        </div>
-
-        <div id="mainContent" style="display:none;">
-
-            <!-- Stat cards -->
-            <div class="stat-row">
-                <div class="stat-card total">
-                    <div>
-                        <div class="sc-label">Total Devices</div>
-                        <div class="sc-value" id="statTotal">0</div>
-                    </div>
-                    <div class="sc-icon">📡</div>
+            <div class="header-card" style="margin-bottom:18px;">
+                <div class="shop-icon">📡</div>
+                <div class="shop-info">
+                    <h1>Area Devices</h1>
+                    <p class="subtitle">Manage equipment and connect to stores</p>
                 </div>
-                <div class="stat-card active">
-                    <div>
-                        <div class="sc-label">Active</div>
-                        <div class="sc-value" id="statActive">0</div>
-                    </div>
-                    <div class="sc-icon">✅</div>
-                </div>
-                <div class="stat-card inactive">
-                    <div>
-                        <div class="sc-label">Inactive</div>
-                        <div class="sc-value" id="statInactive">0</div>
-                    </div>
-                    <div class="sc-icon">⏸️</div>
-                </div>
-                <div class="stat-card links">
-                    <div>
-                        <div class="sc-label">Shop Links</div>
-                        <div class="sc-value" id="statLinks">0</div>
-                    </div>
-                    <div class="sc-icon">🔗</div>
-                </div>
+                <div class="live-badge" id="deviceCountBadge">0 devices</div>
             </div>
 
-            <!-- Toolbar -->
-            <div class="toolbar">
-                <div class="search-wrap">
-                    <span class="si">🔍</span>
-                    <input type="search" id="searchInput" placeholder="Search device code, name, shop..." />
-                </div>
-                <button class="tbtn-primary" onclick="openAddModal()">＋ Add Device</button>
+            <div id="loading" class="loading" style="margin-bottom:16px;">
+                <h2>📡 Loading Devices...</h2>
+            </div>
+            <div id="error" class="error" style="display:none;margin-bottom:16px;">
+                <h3>Error</h3>
+                <p id="errorMessage"></p>
             </div>
 
-            <!-- Table -->
-            <div class="table-panel">
-                <div class="table-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Device Code</th>
-                                <th>Name</th>
-                                <th>Linked Shops</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="devicesTableBody"></tbody>
-                    </table>
+            <div id="mainContent" style="display:none;">
+                <div class="stat-row">
+                    <div class="stat-card total">
+                        <div>
+                            <div class="sc-label">Total Devices</div>
+                            <div class="sc-value" id="statTotal">0</div>
+                        </div>
+                        <div class="sc-icon">📡</div>
+                    </div>
+                    <div class="stat-card active">
+                        <div>
+                            <div class="sc-label">Active</div>
+                            <div class="sc-value" id="statActive">0</div>
+                        </div>
+                        <div class="sc-icon">✅</div>
+                    </div>
+                    <div class="stat-card inactive">
+                        <div>
+                            <div class="sc-label">Inactive</div>
+                            <div class="sc-value" id="statInactive">0</div>
+                        </div>
+                        <div class="sc-icon">⏸️</div>
+                    </div>
+                    <div class="stat-card links">
+                        <div>
+                            <div class="sc-label">Shop Links</div>
+                            <div class="sc-value" id="statLinks">0</div>
+                        </div>
+                        <div class="sc-icon">🔗</div>
+                    </div>
                 </div>
-                <div class="table-footer">
-                    <span id="footerLabel">Showing 0 of 0 devices</span>
+
+                <div class="toolbar">
+                    <div class="search-wrap"><span class="si">🔍</span><input type="search" id="searchInput"
+                            placeholder="Search device code, name, shop..." /></div>
+                    <button class="tbtn-primary" id="addDeviceBtn" onclick="openAddModal()">＋ Add Device</button>
+                </div>
+
+                <div class="table-panel">
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Device Code</th>
+                                    <th>Name</th>
+                                    <th>Linked Shops</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="devicesTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer"><span id="footerLabel">Showing 0 of 0 devices</span></div>
                 </div>
             </div>
+        </main>
+    </div>
 
-        </div><!-- /mainContent -->
-    </div><!-- /container -->
-
-    <!-- Add / Edit Device Modal -->
     <div class="modal-overlay" id="deviceModal">
         <div class="modal" style="max-width:420px;">
             <h3 id="deviceModalTitle">Add Device</h3>
             <p class="modal-sub" id="deviceModalSub">Add a new device to the system</p>
-            <div class="modal-group">
-                <label>Device Code *</label>
-                <input type="text" id="fDeviceId" placeholder="DEV-NMN-006" />
-            </div>
-            <div class="modal-group">
-                <label>Name *</label>
-                <input type="text" id="fDeviceName" placeholder="Sensor name" />
-            </div>
-            <div class="modal-group" id="fStatusGroup" style="display:none;">
-                <label>Status</label>
-                <select id="fDeviceStatus">
+            <div class="modal-group"><label>Device Code *</label><input type="text" id="fDeviceId"
+                    placeholder="DEV-NMN-006" /></div>
+            <div class="modal-group"><label>Name *</label><input type="text" id="fDeviceName"
+                    placeholder="Sensor name" /></div>
+            <div class="modal-group" id="fStatusGroup" style="display:none;"><label>Status</label><select
+                    id="fDeviceStatus">
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
-                </select>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-cancel" onclick="closeDeviceModal()">Cancel</button>
-                <button class="btn-save" onclick="saveDevice()">Save</button>
-            </div>
+                </select></div>
+            <div class="modal-footer"><button class="btn-cancel" onclick="closeDeviceModal()">Cancel</button><button
+                    class="btn-save" onclick="saveDevice()">Save</button></div>
         </div>
     </div>
 
-    <!-- Link Shops Modal -->
     <div class="modal-overlay" id="linkModal">
         <div class="modal link-modal">
             <h3>Manage Shops</h3>
@@ -750,7 +683,15 @@
     </div>
 
     <script src="../scripts/config.js"></script>
+    <script src="../scripts/admin-auth.js"></script>
+    <script src="../scripts/admin-sidebar.js"></script>
     <script src="../scripts/area_devices.js"></script>
+    <script>
+        initAdminSidebar('devices');
+        if (!isAdminRole()) {
+            document.getElementById('addDeviceBtn').style.display = 'none';
+        }
+    </script>
 </body>
 
 </html>
