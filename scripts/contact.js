@@ -11,57 +11,57 @@ let replyTargetId = null;
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
 async function loadMessages() {
-    try {
-        const res = await fetch(`${API}/api/v3/messages`);
-        allMessages = await res.json();
-        updateStats();
-        renderList();
-        // auto-open first unread
-        const first = allMessages.find(m => m.message_status === 'UNREAD') || allMessages[0];
-        if (first) openDetail(first.id);
-    } catch (err) {
-        document.getElementById('msgList').innerHTML = `<div class="msg-list-empty">Failed to load messages.</div>`;
-    }
+  try {
+    const res = await fetch(`${API}/api/v3/messages`);
+    allMessages = await res.json();
+    updateStats();
+    renderList();
+    // auto-open first unread
+    const first = allMessages.find(m => m.message_status === 'UNREAD') || allMessages[0];
+    if (first) openDetail(first.id);
+  } catch (err) {
+    document.getElementById('msgList').innerHTML = `<div class="msg-list-empty">Failed to load messages.</div>`;
+  }
 }
 
 function updateStats() {
-    document.getElementById('statTotal').textContent = allMessages.length;
-    document.getElementById('statUnread').textContent = allMessages.filter(m => m.message_status === 'UNREAD').length;
-    document.getElementById('statReplied').textContent = allMessages.filter(m => m.message_status === 'REPLIED').length;
-    document.getElementById('statClosed').textContent = allMessages.filter(m => m.message_status === 'CLOSED').length;
+  document.getElementById('statTotal').textContent = allMessages.length;
+  document.getElementById('statUnread').textContent = allMessages.filter(m => m.message_status === 'UNREAD').length;
+  document.getElementById('statReplied').textContent = allMessages.filter(m => m.message_status === 'REPLIED').length;
+  document.getElementById('statClosed').textContent = allMessages.filter(m => m.message_status === 'CLOSED').length;
 }
 
 // ─── List rendering ───────────────────────────────────────────────────────────
 
 function setFilter(btn) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeFilter = btn.dataset.filter;
-    renderList();
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = btn.dataset.filter;
+  renderList();
 }
 
 function renderList() {
-    const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
 
-    const filtered = allMessages.filter(m => {
-        if (activeFilter !== 'All' && m.message_status !== activeFilter) return false;
-        if (q) {
-            return (m.shop_name || '').toLowerCase().includes(q) ||
-                (m.phone || '').includes(q) ||
-                (m.subject || '').toLowerCase().includes(q) ||
-                (m.message_id || '').toLowerCase().includes(q);
-        }
-        return true;
-    });
-
-    const list = document.getElementById('msgList');
-
-    if (filtered.length === 0) {
-        list.innerHTML = `<div class="msg-list-empty">No messages found.</div>`;
-        return;
+  const filtered = allMessages.filter(m => {
+    if (activeFilter !== 'All' && m.message_status !== activeFilter) return false;
+    if (q) {
+      return (m.shop_name || '').toLowerCase().includes(q) ||
+        (m.phone || '').includes(q) ||
+        (m.subject || '').toLowerCase().includes(q) ||
+        (m.message_id || '').toLowerCase().includes(q);
     }
+    return true;
+  });
 
-    list.innerHTML = filtered.map(m => `
+  const list = document.getElementById('msgList');
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="msg-list-empty">No messages found.</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(m => `
     <div class="msg-item ${m.message_status === 'UNREAD' ? 'unread-item' : ''} ${m.id === activeId ? 'active' : ''}"
          onclick="openDetail(${m.id})">
       <div class="msg-top">
@@ -80,14 +80,14 @@ function renderList() {
 // ─── Detail panel ─────────────────────────────────────────────────────────────
 
 function openDetail(id) {
-    activeId = id;
-    const m = allMessages.find(x => x.id === id);
-    if (!m) return;
+  activeId = id;
+  const m = allMessages.find(x => x.id === id);
+  if (!m) return;
 
-    renderList(); // re-render list to update active state
+  renderList(); // re-render list to update active state
 
-    const panel = document.getElementById('detailPanel');
-    panel.innerHTML = `
+  const panel = document.getElementById('detailPanel');
+  panel.innerHTML = `
     <div class="detail-header">
       <div>
         <div class="detail-shop-name">${escHtml(m.subject)}</div>
@@ -122,137 +122,146 @@ function openDetail(id) {
     </div>
 
     <div class="detail-actions">
-      <button class="action-btn reply" onclick="openModal(${m.id})">
-        💬 ${m.admin_reply ? 'Edit Reply' : 'Reply'}
-      </button>
-      ${m.message_status !== 'CLOSED' ? `
-        <button class="action-btn close-btn" onclick="updateStatus(${m.id}, 'CLOSED')">✕ Close</button>
-      ` : `
-        <button class="action-btn close-btn" onclick="updateStatus(${m.id}, 'UNREAD')">↩ Reopen</button>
-      `}
-      <button class="action-btn delete-btn" onclick="deleteMessage(${m.id})">🗑️</button>
-    </div>
+    ${isAdminRole() ? `
+        <button class="action-btn reply" onclick="openModal(${m.id})">
+            💬 ${m.admin_reply ? 'Edit Reply' : 'Reply'}
+        </button>
+        ${m.message_status !== 'CLOSED' ? `
+            <button class="action-btn close-btn" onclick="updateStatus(${m.id}, 'CLOSED')">✕ Close</button>
+        ` : `
+            <button class="action-btn close-btn" onclick="updateStatus(${m.id}, 'UNREAD')">↩ Reopen</button>
+        `}
+        <button class="action-btn delete-btn" onclick="deleteMessage(${m.id})">🗑️</button>
+    ` : `
+        <div style="padding:10px 0;font-size:13px;color:var(--muted);font-weight:600;">
+            👁️ View only — contact an admin to reply or close messages
+        </div>
+    `}
+</div>
   `;
 }
 
 // ─── Reply Modal ──────────────────────────────────────────────────────────────
 
 function openModal(id) {
-    const m = allMessages.find(x => x.id === id);
-    if (!m) return;
-    replyTargetId = id;
+  const m = allMessages.find(x => x.id === id);
+  if (!m) return;
+  replyTargetId = id;
 
-    document.getElementById('modalTitle').textContent = `Reply to ${m.message_id}`;
-    document.getElementById('modalSub').textContent = `From: ${m.shop_name || m.phone || 'Unknown'} · Subject: ${m.subject}`;
-    document.getElementById('modalOriginal').textContent = m.message;
-    document.getElementById('replyText').value = m.admin_reply || '';
-    document.getElementById('replyModal').style.display = 'flex';
-    setTimeout(() => document.getElementById('replyText').focus(), 50);
+  document.getElementById('modalTitle').textContent = `Reply to ${m.message_id}`;
+  document.getElementById('modalSub').textContent = `From: ${m.shop_name || m.phone || 'Unknown'} · Subject: ${m.subject}`;
+  document.getElementById('modalOriginal').textContent = m.message;
+  document.getElementById('replyText').value = m.admin_reply || '';
+  document.getElementById('replyModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('replyText').focus(), 50);
 }
 
 function closeModal() {
-    document.getElementById('replyModal').style.display = 'none';
-    replyTargetId = null;
+  document.getElementById('replyModal').style.display = 'none';
+  replyTargetId = null;
 }
 
 function closeModalOnBg(e) {
-    if (e.target === e.currentTarget) closeModal();
+  if (e.target === e.currentTarget) closeModal();
 }
 
 async function submitReply() {
-    const text = document.getElementById('replyText').value.trim();
-    if (!text) { alert('Reply cannot be empty.'); return; }
+  if (!isAdminRole()) return;
+  const text = document.getElementById('replyText').value.trim();
+  if (!text) { alert('Reply cannot be empty.'); return; }
 
-    const btn = document.getElementById('sendReplyBtn');
-    btn.disabled = true;
-    btn.textContent = 'Sending...';
+  const btn = document.getElementById('sendReplyBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
 
-    try {
-        const res = await fetch(`${API}/api/v3/messages/${replyTargetId}/reply`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ admin_reply: text }),
-        });
-        if (!res.ok) throw new Error('Failed');
+  try {
+    const res = await fetch(`${API}/api/v3/messages/${replyTargetId}/reply`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ admin_reply: text }),
+    });
+    if (!res.ok) throw new Error('Failed');
 
-        // Update local state
-        const m = allMessages.find(x => x.id === replyTargetId);
-        if (m) {
-            m.admin_reply = text;
-            m.message_status = 'REPLIED';
-            m.updated_at = new Date().toISOString();
-        }
-
-        closeModal();
-        updateStats();
-        renderList();
-        openDetail(replyTargetId);
-
-    } catch (err) {
-        alert('Error sending reply: ' + err.message);
-    } finally {
-        btn.disabled = false;
-        btn.textContent = 'Send Reply';
+    // Update local state
+    const m = allMessages.find(x => x.id === replyTargetId);
+    if (m) {
+      m.admin_reply = text;
+      m.message_status = 'REPLIED';
+      m.updated_at = new Date().toISOString();
     }
+
+    closeModal();
+    updateStats();
+    renderList();
+    openDetail(replyTargetId);
+
+  } catch (err) {
+    alert('Error sending reply: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send Reply';
+  }
 }
 
 // ─── Status / Delete ──────────────────────────────────────────────────────────
 
 async function updateStatus(id, status) {
-    try {
-        const res = await fetch(`${API}/api/v3/messages/${id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message_status: status }),
-        });
-        if (!res.ok) throw new Error('Failed');
+  try {
+    const res = await fetch(`${API}/api/v3/messages/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message_status: status }),
+    });
+    if (!res.ok) throw new Error('Failed');
 
-        const m = allMessages.find(x => x.id === id);
-        if (m) m.message_status = status;
+    if (!isAdminRole()) return;
+    const m = allMessages.find(x => x.id === id);
+    if (m) m.message_status = status;
 
-        updateStats();
-        renderList();
-        openDetail(id);
-    } catch (err) {
-        alert('Error: ' + err.message);
-    }
+    updateStats();
+    renderList();
+    openDetail(id);
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
 }
 
 async function deleteMessage(id) {
-    if (!confirm('Delete this message? This cannot be undone.')) return;
+  if (!confirm('Delete this message? This cannot be undone.')) return;
 
-    try {
-        const res = await fetch(`${API}/api/v3/messages/${id}`, { method: 'DELETE' });
-        if (!res.ok) throw new Error('Failed');
+  try {
+    const res = await fetch(`${API}/api/v3/messages/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed');
+    if (!isAdminRole()) return;
 
-        allMessages = allMessages.filter(x => x.id !== id);
-        activeId = null;
-        updateStats();
-        renderList();
-        document.getElementById('detailPanel').innerHTML = `<div class="detail-empty">Select a message from the list</div>`;
-    } catch (err) {
-        alert('Error: ' + err.message);
-    }
+    allMessages = allMessages.filter(x => x.id !== id);
+    activeId = null;
+    updateStats();
+    renderList();
+    document.getElementById('detailPanel').innerHTML = `<div class="detail-empty">Select a message from the list</div>`;
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function escHtml(str) {
-    if (!str) return '';
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function formatDate(dateStr) {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 function timeAgo(dateStr) {
-    if (!dateStr) return '';
-    const diff = Math.floor((Date.now() - new Date(dateStr)) / 60000);
-    if (diff < 60) return `${diff}m ago`;
-    if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
-    return `${Math.floor(diff / 1440)}d ago`;
+  if (!dateStr) return '';
+  const diff = Math.floor((Date.now() - new Date(dateStr)) / 60000);
+  if (diff < 60) return `${diff}m ago`;
+  if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+  return `${Math.floor(diff / 1440)}d ago`;
 }
 
 // ─── Start ────────────────────────────────────────────────────────────────────

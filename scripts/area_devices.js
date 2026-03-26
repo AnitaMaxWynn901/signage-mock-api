@@ -106,7 +106,7 @@ function renderTable() {
             <td>
                 <div class="toggle-wrap">
                     <label class="toggle">
-                        <input type="checkbox" ${checked} onchange="toggleDevice('${esc(dev.device_id)}', this.checked)">
+                        <input type="checkbox" ${checked} ${isAdminRole() ? '' : 'disabled'} onchange="toggleDevice('${esc(dev.device_id)}', this.checked)">
                         <div class="toggle-track"></div>
                         <div class="toggle-thumb"></div>
                     </label>
@@ -131,6 +131,11 @@ function renderTable() {
 // ── Toggle active ────────────────────────────────
 async function toggleDevice(deviceId, isActive) {
     try {
+        if (!isAdminRole()) {
+            const checkbox = document.querySelector(`input[onchange*="'${deviceId}'"]`);
+            if (checkbox) checkbox.checked = !isActive;
+            return;
+        }
         await apiFetch(`${API}/api/v3/devices/${deviceId}`, 'PATCH', {
             active: isActive,
             status: isActive ? 'Active' : 'Inactive'

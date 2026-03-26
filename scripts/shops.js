@@ -129,7 +129,7 @@ function renderTable() {
             <td>
                 <div class="toggle-wrap">
                     <label class="toggle">
-                        <input type="checkbox" ${checked} onchange="toggleStatus('${shop.shop_id}', this.checked)">
+                        <input type="checkbox" ${checked} ${isAdminRole() ? '' : 'disabled'} onchange="toggleStatus('${shop.shop_id}', this.checked)">
                         <div class="toggle-track"></div>
                         <div class="toggle-thumb"></div>
                     </label>
@@ -157,10 +157,19 @@ function renderTable() {
 
 // ── Toggle status (local only — wire to API when ready) ──
 function toggleStatus(shopId, isActive) {
+
+    if (!isAdminRole()) {
+        const checkbox = document.querySelector(`input[onchange*="'${shopId}'"]`);
+        if (checkbox) checkbox.checked = !isActive; // revert
+        return;
+    }
+
     const shop = allShops.find(s => s.shop_id === shopId);
     if (!shop) return;
 
     shop.active = isActive;
+
+
 
     const label = document.getElementById(`statusLabel_${shopId}`);
     if (label) {
