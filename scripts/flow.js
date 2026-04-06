@@ -1,170 +1,98 @@
-// scripts/flow.js - Clean UI rendering
-
-let currentShop = getCurrentShop();
-
-async function getMovement(date, shopname) {
-    return await fetchData(CONFIG.ENDPOINTS.PROXY_MOVEMENT, "POST", { date, shopname });
-}
+// scripts/flow.js
+const currentShop = getCurrentShop();
 
 async function init() {
     const today = getTodayDate();
-    document.getElementById("dateInput").value = today;
-
-    const shopIcons = { "nimman-connex": "N", "one-nimman": "O", "maya-mall": "M" };
-    document.getElementById("shopIcon").textContent = shopIcons[currentShop] || "S";
-    document.getElementById("shopSubtitle").textContent = CONFIG.SHOP_NAMES[currentShop];
-
-    await loadFlowData(today);
-
-    document.getElementById("dateInput").addEventListener("change", async (e) => {
-        await loadFlowData(e.target.value);
-    });
+    document.getElementById('dateInput').value = today;
+    document.getElementById('shopIcon').textContent = shopIcon(currentShop);
+    document.getElementById('shopSubtitle').textContent = CONFIG.SHOP_NAMES[currentShop];
+    await load(today);
+    document.getElementById('dateInput').addEventListener('change', e => load(e.target.value));
 }
 
-async function loadFlowData(date) {
+async function load(date) {
+    showLoading(true);
     try {
-        document.getElementById("loading").style.display = "block";
-        document.getElementById("error").style.display = "none";
-        document.getElementById("statsContainer").style.display = "none";
-
-        const [movementRes, summaryRes] = await Promise.all([
-            getMovement(date, currentShop),
-            getSummary(date, currentShop),
-        ]);
-
-        displayFlowData(movementRes, summaryRes, date);
-    } catch (error) {
-        showError(error.message);
-    }
+        const data = await getMovement(date, currentShop);
+        const movement = data['proxy/movement'][currentShop];
+        render(movement, date);
+    } catch (e) { showError(e.message); }
+    finally { showLoading(false); }
 }
 
-function displayFlowData(movementRes, summaryRes, date) {
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("statsContainer").style.display = "block";
+function render(movement, date) {
+    const { totals, byCategory } = movement;
 
-    const movementData = movementRes["proxy/movement"][currentShop];
-    const { totals, byCategory } = movementData;
+    document.getElementById('shopName').textContent = CONFIG.SHOP_NAMES[currentShop];
+    document.getElementById('date').textContent = date;
+    document.getElementById('inbound').textContent = formatNumber(totals.inbound);
+    document.getElementById('internal').textContent = formatNumber(totals.internal);
+    document.getElementById('outbound').textContent = formatNumber(totals.outbound);
 
-    const summary = summaryRes["dashboard/summary"][currentShop];
-    const kpis = summary.kpis;
-
-    document.getElementById("shopName").textContent = CONFIG.SHOP_NAMES[currentShop];
-    document.getElementById("date").textContent = date;
-
-    document.getElementById("inbound").textContent = formatNumber(totals.inbound);
-    document.getElementById("internal").textContent = formatNumber(totals.internal);
-    document.getElementById("outbound").textContent = formatNumber(totals.outbound);
-
-    document.getElementById("frontStoreValue").textContent = formatNumber(kpis.front_store);
-    document.getElementById("inStoreValue").textContent = formatNumber(kpis.in_store);
-
-    const conversion = kpis.front_store > 0 ? ((kpis.in_store / kpis.front_store) * 100).toFixed(1) : "0.0";
-    document.getElementById("conversionBadge").textContent = `${conversion}% conversion`;
-
-    if (byCategory && (byCategory.inbound || byCategory.outbound)) {
-        displayCategoryFlow(byCategory);
-        displayCategoryBreakdown(byCategory);
-    }
+    renderCategoryNodes(byCategory);
+    renderBreakdown(byCategory);
+    document.getElementById('statsContainer').style.display = 'block';
 }
 
-function displayCategoryFlow(byCategory) {
-    const inboundContainer = document.getElementById("inboundCategories");
-    const outboundContainer = document.getElementById("outboundCategories");
+function renderCategoryNodes(byCategory) {
+    const inEl = document.getElementById('inboundCategories');
+    const outEl = document.getElementById('outboundCategories');
+    if (!inEl || !outEl) return;
 
-    const categoryClass = {
-        "Cafe & Restaurant": "cafe",
-        "Retail": "retail",
-        "Service": "service",
-        "Entertainment": "entertainment",
-        "Others": "service",
-    };
+    inEl.innerHTML = '';
+    outEl.innerHTML = '';
 
-    inboundContainer.innerHTML = "";
-    outboundContainer.innerHTML = "";
-
-    (byCategory.inbound || []).slice(0, 4).forEach((item) => {
-        const cls = categoryClass[item.from_category] || "retail";
-        inboundContainer.appendChild(makeNode("Inbound", item.from_category, item.value, cls));
-    });
-
-    (byCategory.outbound || []).slice(0, 4).forEach((item) => {
-        const cls = categoryClass[item.to_category] || "retail";
-        outboundContainer.appendChild(makeNode("Outbound", item.to_category, item.value, cls));
-    });
+    (byCategory.inbound || []).slice(0, 4).forEach(item => inEl.appendChild(makeNode('Inbound', item.from_category, item.value)));
+    (byCategory.outbound || []).slice(0, 4).forEach(item => outEl.appendChild(makeNode('Outbound', item.to_category, item.value)));
 }
 
-function makeNode(direction, category, value, cls) {
-    const node = document.createElement("div");
-    node.className = `flow-node ${cls}`;
-    node.innerHTML = `
-    <div class="node-label">${direction}</div>
-    <div class="node-sub">${category}</div>
-    <div class="node-value">${formatNumber(value)}</div>
-  `;
-    return node;
+function makeNode(dir, category, value) {
+    const el = document.createElement('div');
+    el.className = 'flow-node retail';
+    el.innerHTML = `
+      <div class="node-label">${dir}</div>
+      <div class="node-sub">${category}</div>
+      <div class="node-value">${formatNumber(value)}</div>`;
+    return el;
 }
 
-function displayCategoryBreakdown(byCategory) {
-    const inboundBreakdown = document.getElementById("inboundBreakdown");
-    const outboundBreakdown = document.getElementById("outboundBreakdown");
+function renderBreakdown(byCategory) {
+    const inEl = document.getElementById('inboundBreakdown');
+    const outEl = document.getElementById('outboundBreakdown');
+    if (!inEl || !outEl) return;
 
-    const colors = {
-        "Cafe & Restaurant": "#fb923c",
-        "Retail": "#3b82f6",
-        "Service": "#8b5cf6",
-        "Entertainment": "#06b6d4",
-        "Others": "#64748b",
-    };
+    inEl.innerHTML = makeBreakdownHtml(byCategory.inbound || [], 'from_category');
+    outEl.innerHTML = makeBreakdownHtml(byCategory.outbound || [], 'to_category');
+}
 
-    // inbound
-    const inbound = byCategory.inbound || [];
-    if (inbound.length) {
-        const max = Math.max(...inbound.map((x) => x.value), 1);
-        inboundBreakdown.innerHTML = inbound.map((item) => {
-            const pct = Math.round((item.value / max) * 100);
-            const color = colors[item.from_category] || colors.Others;
-            return `
+function makeBreakdownHtml(items, catKey) {
+    if (!items.length) return `<div style="color:var(--muted);font-size:13px;">No data</div>`;
+    const max = Math.max(...items.map(x => x.value), 1);
+    return items.map(item => {
+        const pct = Math.round((item.value / max) * 100);
+        return `
         <div class="breakdown-item">
-          <div class="color-dot" style="background:${color}"></div>
-          <div>
-            <div class="item-name">${item.from_category}</div>
-            <div class="item-bar"><div class="item-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+          <div class="color-dot" style="background:var(--primary)"></div>
+          <div style="flex:1">
+            <div class="item-name">${item[catKey]}</div>
+            <div class="item-bar"><div class="item-bar-fill" style="width:${pct}%;background:var(--primary)"></div></div>
           </div>
           <div class="item-value">${formatNumber(item.value)}</div>
-        </div>
-      `;
-        }).join("");
-    } else {
-        inboundBreakdown.innerHTML = `<div style="color:var(--muted);font-size:13px;">No inbound data</div>`;
-    }
-
-    // outbound
-    const outbound = byCategory.outbound || [];
-    if (outbound.length) {
-        const max = Math.max(...outbound.map((x) => x.value), 1);
-        outboundBreakdown.innerHTML = outbound.map((item) => {
-            const pct = Math.round((item.value / max) * 100);
-            const color = colors[item.to_category] || colors.Others;
-            return `
-        <div class="breakdown-item">
-          <div class="color-dot" style="background:${color}"></div>
-          <div>
-            <div class="item-name">${item.to_category}</div>
-            <div class="item-bar"><div class="item-bar-fill" style="width:${pct}%;background:${color}"></div></div>
-          </div>
-          <div class="item-value">${formatNumber(item.value)}</div>
-        </div>
-      `;
-        }).join("");
-    } else {
-        outboundBreakdown.innerHTML = `<div style="color:var(--muted);font-size:13px;">No outbound data</div>`;
-    }
+        </div>`;
+    }).join('');
 }
 
-function showError(message) {
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("error").style.display = "block";
-    document.getElementById("errorMessage").textContent = message;
+function showLoading(on) {
+    document.getElementById('loading').style.display = on ? 'block' : 'none';
+    document.getElementById('statsContainer').style.display = on ? 'none' : 'block';
+    document.getElementById('error').style.display = 'none';
+}
+
+function showError(msg) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('statsContainer').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('errorMessage').textContent = msg;
 }
 
 init();

@@ -1,65 +1,55 @@
 // scripts/front-store.js
-
-let currentShop = getCurrentShop();
+const currentShop = getCurrentShop();
 
 async function init() {
     const today = getTodayDate();
-    document.getElementById("dateInput").value = today;
-
-    await loadFrontStoreData(today);
-
-    document.getElementById("dateInput").addEventListener("change", async (e) => {
-        await loadFrontStoreData(e.target.value);
-    });
+    document.getElementById('dateInput').value = today;
+    const shopIconEl = document.getElementById('shopIcon');
+    if (shopIconEl) shopIconEl.textContent = shopIcon(currentShop);
+    await load(today);
+    document.getElementById('dateInput').addEventListener('change', e => load(e.target.value));
 }
 
-async function loadFrontStoreData(date) {
+async function load(date) {
+    showLoading(true);
     try {
-        document.getElementById("loading").style.display = "block";
-        document.getElementById("error").style.display = "none";
-        document.getElementById("statsContainer").style.display = "none";
-
         const data = await getSummary(date, currentShop);
-        displayFrontStoreData(data, date);
-    } catch (error) {
-        showError(error.message);
-    }
+        render(data['dashboard/summary'][currentShop].kpis, date);
+    } catch (e) { showError(e.message); }
+    finally { showLoading(false); }
 }
 
-function displayFrontStoreData(data, date) {
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("statsContainer").style.display = "block";
+function render(kpis, date) {
+    const front = kpis.front_store || 0;
+    const district = kpis.district_count || 0;
+    const instore = kpis.in_store || 0;
 
-    const summaryData = data["dashboard/summary"][currentShop];
-    const kpis = summaryData.kpis;
+    document.getElementById('shopName').textContent = CONFIG.SHOP_NAMES[currentShop];
+    document.getElementById('date').textContent = date;
+    document.getElementById('frontStoreCount').textContent = formatNumber(front);
+    document.getElementById('districtCount').textContent = formatNumber(district);
+    document.getElementById('inStoreCount').textContent = formatNumber(instore);
 
-    const shopIcons = { "nimman-connex": "N", "one-nimman": "O", "maya-mall": "M" };
-    const shopIconEl = document.getElementById("shopIcon");
-    if (shopIconEl) shopIconEl.textContent = shopIcons[currentShop] || "S";
+    const conv = front > 0 ? ((instore / front) * 100).toFixed(1) : '0.0';
+    document.getElementById('conversionRate').textContent = `${conv}%`;
 
-    document.getElementById("shopName").textContent = CONFIG.SHOP_NAMES[currentShop];
-    document.getElementById("date").textContent = date;
-
-    const front = Number(kpis.front_store || 0);
-    const district = Number(kpis.district_count || 0);
-    const instore = Number(kpis.in_store || 0);
-
-    document.getElementById("frontStoreCount").textContent = formatNumber(front);
-    document.getElementById("frontStoreMini").textContent = formatNumber(front);
-
-    document.getElementById("districtCount").textContent = formatNumber(district);
-
-    document.getElementById("inStoreCount").textContent = formatNumber(instore);
-    document.getElementById("inStoreMini").textContent = formatNumber(instore);
-
-    const conversionRate = front > 0 ? ((instore / front) * 100).toFixed(1) : "0.0";
-    document.getElementById("conversionRate").textContent = `${conversionRate}%`;
+    // Optional mini displays
+    const miniEl = document.getElementById('frontStoreMini');
+    if (miniEl) miniEl.textContent = formatNumber(front);
+    document.getElementById('statsContainer').style.display = 'block';
 }
 
-function showError(message) {
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("error").style.display = "block";
-    document.getElementById("errorMessage").textContent = message;
+function showLoading(on) {
+    document.getElementById('loading').style.display = on ? 'block' : 'none';
+    document.getElementById('statsContainer').style.display = on ? 'none' : 'block';
+    document.getElementById('error').style.display = 'none';
+}
+
+function showError(msg) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('statsContainer').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('errorMessage').textContent = msg;
 }
 
 init();

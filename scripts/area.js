@@ -1,110 +1,76 @@
 // scripts/area.js
-
-let currentShop = getCurrentShop();
+const currentShop = getCurrentShop();
 
 async function init() {
     const today = getTodayDate();
-    document.getElementById("dateInput").value = today;
-
-    await loadAreaData(today);
-
-    document.getElementById("dateInput").addEventListener("change", async (e) => {
-        await loadAreaData(e.target.value);
-    });
+    document.getElementById('dateInput').value = today;
+    const shopIconEl = document.getElementById('shopIcon');
+    if (shopIconEl) shopIconEl.textContent = shopIcon(currentShop);
+    await load(today);
+    document.getElementById('dateInput').addEventListener('change', e => load(e.target.value));
 }
 
-async function loadAreaData(date) {
+async function load(date) {
+    showLoading(true);
     try {
-        document.getElementById("loading").style.display = "block";
-        document.getElementById("error").style.display = "none";
-        document.getElementById("statsContainer").style.display = "none";
-
-        // Load summary + crowd in parallel
-        const [summaryRes, crowdRes] = await Promise.all([
-            getSummary(date, currentShop),
-            getCrowd(date, currentShop), // ✅ now comes from api.js
-        ]);
-
-        displayAreaData(summaryRes, crowdRes, date);
-    } catch (error) {
-        showError(error.message || String(error));
-    }
+        const data = await getCrowd(date, currentShop);
+        const crowd = data['proxy/crowd'][currentShop];
+        render(crowd, date);
+    } catch (e) { showError(e.message); }
+    finally { showLoading(false); }
 }
 
-function displayAreaData(summaryRes, crowdRes, date) {
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("statsContainer").style.display = "block";
+function render(crowd, date) {
+    document.getElementById('shopName').textContent = CONFIG.SHOP_NAMES[currentShop];
+    document.getElementById('date').textContent = date;
+    document.getElementById('areaCount').textContent = formatNumber(crowd.total);
 
-    // Header
-    const shopIcons = { "nimman-connex": "N", "one-nimman": "O", "maya-mall": "M" };
-    const shopIconEl = document.getElementById("shopIcon");
-    if (shopIconEl) shopIconEl.textContent = shopIcons[currentShop] || "S";
+    const listEl = document.getElementById('deviceList');
+    if (!listEl) return;
 
-    document.getElementById("shopName").textContent = CONFIG.SHOP_NAMES[currentShop];
-    document.getElementById("date").textContent = date;
-
-    // KPI from dashboard/summary
-    const summaryData = summaryRes["dashboard/summary"]?.[currentShop];
-    const kpis = summaryData?.kpis || {};
-
-    document.getElementById("areaCount").textContent = formatNumber(kpis.area_count || 0);
-    document.getElementById("districtCount").textContent = formatNumber(kpis.district_count || 0);
-
-    // Proxy crowd sensors
-    const shopCrowd = crowdRes["proxy/crowd"]?.[currentShop];
-
-    // Cycle
-    const cycleText = document.getElementById("cycleText");
-    if (cycleText) cycleText.textContent = "Full day";
-
-    // Last updated (unix seconds)
-    const lastUpdatedEl = document.getElementById("lastUpdated");
-    if (lastUpdatedEl) {
-        const ts = shopCrowd?.lastUpdate;
-        lastUpdatedEl.textContent = `Last updated: ${formatUnix(ts)}`;
+    if (!crowd.devices.length) {
+        listEl.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:12px 0;">No devices linked to this shop yet.</div>`;
+        return;
     }
 
-    // Latest sensor values (arrays like [{ts, value:"32.4"}])
-    const temp = pickLatestNumber(shopCrowd?.temperature);
-    const hum = pickLatestNumber(shopCrowd?.humidity);
-    const pres = pickLatestNumber(shopCrowd?.pressure);
-
-    const tEl = document.getElementById("tempVal");
-    const hEl = document.getElementById("humidityVal");
-    const pEl = document.getElementById("pressureVal");
-
-    if (tEl) tEl.textContent = temp != null ? `${temp.toFixed(1)}°C` : "-";
-    if (hEl) hEl.textContent = hum != null ? `${hum.toFixed(1)}%` : "-";
-    if (pEl) pEl.textContent = pres != null ? `${Math.round(pres)} hPa` : "-";
+    const max = Math.max(...crowd.devices.map(d => d.value), 1);
+    listEl.innerHTML = crowd.devices.map(d => {
+        const pct = Math.round((d.value / max) * 100);
+        return `
+        <div class="device-row">
+          <div class="device-left">
+            <div class="device-badge">📡</div>
+            <div class="device-meta">
+              <div class="device-name">${esc(d.name)}</div>
+              <div class="device-loc">${esc(d.deviceId)}</div>
+            </div>
+          </div>
+          <div class="device-val">
+            <div class="item-bar" style="width:100px;">
+              <div class="item-bar-fill" style="width:${pct}%;background:var(--primary)"></div>
+            </div>
+            ${formatNumber(d.value)}
+          </div>
+        </div>`;
+    }).join('');
+    document.getElementById('statsContainer').style.display = 'block';
 }
 
-function pickLatestNumber(arr) {
-    if (!Array.isArray(arr) || arr.length === 0) return null;
-    const latest = arr.reduce((a, b) => (Number(b.ts) > Number(a.ts) ? b : a), arr[0]);
-    const n = Number(latest?.value);
-    return Number.isFinite(n) ? n : null;
+function esc(s) {
+    return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
 }
 
-function formatUnix(ts) {
-    const n = Number(ts);
-    if (!Number.isFinite(n) || n <= 0) return "-";
-
-    // proxy-crowd.json uses unix seconds
-    const d = new Date(n * 1000);
-
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    const hh = String(d.getHours()).padStart(2, "0");
-    const mi = String(d.getMinutes()).padStart(2, "0");
-
-    return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
+function showLoading(on) {
+    document.getElementById('loading').style.display = on ? 'block' : 'none';
+    document.getElementById('statsContainer').style.display = on ? 'none' : 'block';
+    document.getElementById('error').style.display = 'none';
 }
 
-function showError(message) {
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("error").style.display = "block";
-    document.getElementById("errorMessage").textContent = message;
+function showError(msg) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('statsContainer').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('errorMessage').textContent = msg;
 }
 
 init();

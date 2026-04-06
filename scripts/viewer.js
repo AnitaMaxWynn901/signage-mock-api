@@ -1,91 +1,65 @@
 // scripts/viewer.js
-
-let currentShop = getCurrentShop();
+// Note: Real endpoint not yet available (P'Oat's scope). Returns zeros for now.
+const currentShop = getCurrentShop();
 
 async function init() {
     const today = getTodayDate();
-    document.getElementById("dateInput").value = today;
-
-    await loadViewerData(today);
-
-    document.getElementById("dateInput").addEventListener("change", async (e) => {
-        await loadViewerData(e.target.value);
-    });
+    document.getElementById('dateInput').value = today;
+    const shopIconEl = document.getElementById('shopIcon');
+    if (shopIconEl) shopIconEl.textContent = shopIcon(currentShop);
+    await load(today);
+    document.getElementById('dateInput').addEventListener('change', e => load(e.target.value));
 }
 
-async function loadViewerData(date) {
+async function load(date) {
+    showLoading(true);
     try {
-        document.getElementById("loading").style.display = "block";
-        document.getElementById("error").style.display = "none";
-        document.getElementById("statsContainer").style.display = "none";
-
         const data = await getViewer(date, currentShop);
-        displayViewerData(data, date);
-    } catch (error) {
-        showError(error.message || String(error));
-    }
+        const viewerData = data['dashboard/viewer'][currentShop];
+        render(viewerData, date);
+    } catch (e) { showError(e.message); }
+    finally { showLoading(false); }
 }
 
-function displayViewerData(data, date) {
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("statsContainer").style.display = "block";
+function render(viewerData, date) {
+    const { total, groups } = viewerData;
+    const g = groups;
 
-    const viewerData = data["dashboard/viewer"]?.[currentShop];
-    const { total, groups } = viewerData || { total: 0, groups: {} };
+    document.getElementById('shopName').textContent = CONFIG.SHOP_NAMES[currentShop];
+    document.getElementById('date').textContent = date;
+    document.getElementById('totalValue').textContent = formatNumber(total);
 
-    // Header
-    const shopIcons = { "nimman-connex": "N", "one-nimman": "O", "maya-mall": "M" };
-    const shopIconEl = document.getElementById("shopIcon");
-    if (shopIconEl) shopIconEl.textContent = shopIcons[currentShop] || "S";
+    setGroup('male', g.male);
+    setGroup('female', g.female);
+    setGroup('adult', g.adult);
+    setGroup('elderly', g.elderly);
+    setGroup('child', g.child);
 
-    document.getElementById("shopName").textContent = CONFIG.SHOP_NAMES[currentShop];
-    document.getElementById("date").textContent = date;
-
-    // Total viewers
-    document.getElementById("totalValue").textContent = formatNumber(total || 0);
-
-    // Safe group fallbacks
-    const male = groups?.male || { count: 0, percent: 0 };
-    const female = groups?.female || { count: 0, percent: 0 };
-    const adult = groups?.adult || { count: 0, percent: 0 };
-    const elderly = groups?.elderly || { count: 0, percent: 0 };
-    const child = groups?.child || { count: 0, percent: 0 };
-
-    // Gender numbers
-    document.getElementById("maleCount").textContent = formatNumber(male.count || 0);
-    document.getElementById("malePercent").textContent = `${clampPercent(male.percent)}%`;
-
-    document.getElementById("femaleCount").textContent = formatNumber(female.count || 0);
-    document.getElementById("femalePercent").textContent = `${clampPercent(female.percent)}%`;
-
-    // Gender bar widths
-    const maleBar = document.getElementById("maleBar");
-    const femaleBar = document.getElementById("femaleBar");
-
-    if (maleBar) maleBar.style.width = `${clampPercent(male.percent)}%`;
-    if (femaleBar) femaleBar.style.width = `${clampPercent(female.percent)}%`;
-
-    // Age groups
-    document.getElementById("adultCount").textContent = formatNumber(adult.count || 0);
-    document.getElementById("adultPercent").textContent = `${clampPercent(adult.percent)}%`;
-
-    document.getElementById("elderlyCount").textContent = formatNumber(elderly.count || 0);
-    document.getElementById("elderlyPercent").textContent = `${clampPercent(elderly.percent)}%`;
-
-    document.getElementById("childCount").textContent = formatNumber(child.count || 0);
-    document.getElementById("childPercent").textContent = `${clampPercent(child.percent)}%`;
+    document.getElementById('statsContainer').style.display = 'block';
 }
 
-function clampPercent(p) {
-    const n = Number(p);
-    if (!Number.isFinite(n)) return 0;
-    return Math.max(0, Math.min(100, n));
+function setGroup(key, group) {
+    const countEl = document.getElementById(`${key}Count`);
+    const percentEl = document.getElementById(`${key}Percent`);
+    const barEl = document.getElementById(`${key}Bar`);
+    if (countEl) countEl.textContent = formatNumber(group?.count || 0);
+    if (percentEl) percentEl.textContent = `${group?.percent || 0}%`;
+    if (barEl) barEl.style.width = `${Math.min(100, group?.percent || 0)}%`;
 }
 
-function showError(message) {
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("error").style.display = "block";
-    document.getElementById("errorMessage").textContent = message;
+function clampPercent(p) { return Math.max(0, Math.min(100, Number(p) || 0)); }
+
+function showLoading(on) {
+    document.getElementById('loading').style.display = on ? 'block' : 'none';
+    document.getElementById('statsContainer').style.display = on ? 'none' : 'block';
+    document.getElementById('error').style.display = 'none';
+}
+
+function showError(msg) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('statsContainer').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('errorMessage').textContent = msg;
 }
 
 init();
