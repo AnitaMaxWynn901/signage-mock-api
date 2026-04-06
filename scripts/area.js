@@ -13,11 +13,49 @@ async function init() {
 async function load(date) {
     showLoading(true);
     try {
-        const data = await getCrowd(date, currentShop);
-        const crowd = data['proxy/crowd'][currentShop];
+        const [crowdData] = await Promise.all([
+            getCrowd(date, currentShop),
+            loadWeather(date),
+        ]);
+        const crowd = crowdData['proxy/crowd'][currentShop];
         render(crowd, date);
     } catch (e) { showError(e.message); }
     finally { showLoading(false); }
+}
+
+async function loadWeather(date) {
+    try {
+        // Chiang Mai coordinates
+        const lat = 18.7883;
+        const lng = 98.9853;
+        const res = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=temperature_2m_max,temperature_2m_min&hourly=temperature_2m,relative_humidity_2m,surface_pressure&timezone=Asia/Bangkok&start_date=${date}&end_date=${date}`
+        );
+        const data = await res.json();
+
+        if (data.hourly) {
+            // Get average of hourly values
+            const temps = data.hourly.temperature_2m || [];
+            const humids = data.hourly.relative_humidity_2m || [];
+            const pressures = data.hourly.surface_pressure || [];
+
+            const avg = arr => arr.length ? (arr.reduce((a, b) => a + b, 0) / arr.length) : null;
+
+            const avgTemp = avg(temps);
+            const avgHumidity = avg(humids);
+            const avgPressure = avg(pressures);
+
+            const tempEl = document.getElementById('tempVal');
+            const humidEl = document.getElementById('humidityVal');
+            const pressureEl = document.getElementById('pressureVal');
+
+            if (tempEl && avgTemp !== null) tempEl.textContent = `${avgTemp.toFixed(1)} °C`;
+            if (humidEl && avgHumidity !== null) humidEl.textContent = `${avgHumidity.toFixed(0)}%`;
+            if (pressureEl && avgPressure !== null) pressureEl.textContent = `${avgPressure.toFixed(0)} hPa`;
+        }
+    } catch (err) {
+        console.warn('Weather fetch failed:', err.message);
+    }
 }
 
 function render(crowd, date) {
