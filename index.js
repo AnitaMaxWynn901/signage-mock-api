@@ -259,8 +259,8 @@ app.post('/api/v3/proxy/crowd', async (req, res) => {
     } catch (err) { errRes(res, err); }
 });
 
-// ── Movement / Flow ───────────────────────────
-// Uses: movement-raw + shops.node_contact from Supabase
+// ── Movement / Flow (UPDATED - uses movement-analysis API) ──
+// Uses: deeptrack/movement-analysis (pre-calculated by gateway)
 // Body: { date, shopname }
 // Returns: { success, "proxy/movement": { [shopname]: { totals, byCategory } } }
 app.post('/api/v3/proxy/movement', async (req, res) => {
@@ -270,58 +270,48 @@ app.post('/api/v3/proxy/movement', async (req, res) => {
         // 1. Get this shop's node_contact from Supabase
         const myNodeContact = await getShopNodeContact(shopname);
 
-        // 2. Fetch movement-raw from real API
-        const rawData = await realPost('/api/v3/deeptrack/movement-raw', { selectedDate: date });
-        const movements = Array.isArray(rawData?.data?.movement) ? rawData.data.movement : [];
-
-        // 3. Transform: use node_contact as isMyShop identifier
-        const inboundMap = {};
-        const outboundMap = {};
-        let internalTotal = 0;
-        let overallTotal = 0;
-
-        for (const row of movements) {
-            const value = Number(row.value) || 0;
-            overallTotal += value;
-
-            const fromIsMe = myNodeContact && row.from === myNodeContact;
-            const toIsMe = myNodeContact && row.to === myNodeContact;
-
-            if (row.from === row.to && fromIsMe) {
-                // Internal — staying within my node
-                internalTotal += value;
-            } else if (toIsMe && !fromIsMe) {
-                // Inbound — coming into my node from somewhere else
-                // Use the from node_contact as category label (can be enriched later)
-                const cat = row.from || 'Others';
-                inboundMap[cat] = (inboundMap[cat] || 0) + value;
-            } else if (fromIsMe && !toIsMe) {
-                // Outbound — leaving my node to somewhere else
-                const cat = row.to || 'Others';
-                outboundMap[cat] = (outboundMap[cat] || 0) + value;
-            }
+        if (!myNodeContact) {
+            return res.json({
+                success: true, date,
+                'proxy/movement': {
+                    [shopname]: {
+                        totals: { inbound: 0, internal: 0, outbound: 0, overall: 0 },
+                        byCategory: { myCategory: 'Unknown', inbound: [], internal: [], outbound: [] },
+                    }
+                }
+            });
         }
 
-        const inboundTotal = Object.values(inboundMap).reduce((a, b) => a + b, 0);
-        const outboundTotal = Object.values(outboundMap).reduce((a, b) => a + b, 0);
+        // 2. Call movement-analysis API (already pre-calculated)
+        const analysisData = await realPost('/api/v3/deeptrack/movement-analysis', { selectedDate: date });
+        const shopData = analysisData?.data?.[myNodeContact];
 
+        if (!shopData) {
+            return res.json({
+                success: true, date,
+                'proxy/movement': {
+                    [shopname]: {
+                        totals: { inbound: 0, internal: 0, outbound: 0, overall: 0 },
+                        byCategory: { myCategory: 'Unknown', inbound: [], internal: [], outbound: [] },
+                    }
+                }
+            });
+        }
+
+        // 3. Return the pre-calculated data directly
         res.json({
             success: true,
             date,
             'proxy/movement': {
                 [shopname]: {
-                    totals: {
-                        inbound: inboundTotal,
-                        internal: internalTotal,
-                        outbound: outboundTotal,
-                        overall: overallTotal,
-                    },
+                    totals: shopData.totals,
                     byCategory: {
-                        inbound: Object.entries(inboundMap)
-                            .map(([from_category, value]) => ({ from_category, value }))
+                        myCategory: shopData.byCategory?.myCategory || 'Unknown',
+                        inbound: (shopData.byCategory?.inbound || [])
+                            .map(item => ({ from_category: item.from_category, value: item.value }))
                             .sort((a, b) => b.value - a.value),
-                        outbound: Object.entries(outboundMap)
-                            .map(([to_category, value]) => ({ to_category, value }))
+                        outbound: (shopData.byCategory?.outbound || [])
+                            .map(item => ({ to_category: item.to_category, value: item.value }))
                             .sort((a, b) => b.value - a.value),
                     },
                 }
