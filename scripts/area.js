@@ -13,12 +13,14 @@ async function init() {
 async function load(date) {
     showLoading(true);
     try {
-        const [crowdData] = await Promise.all([
+        const [crowdData, summaryData] = await Promise.all([
             getCrowd(date, currentShop),
+            getSummary(date, currentShop),
             loadWeather(date),
         ]);
         const crowd = crowdData['proxy/crowd'][currentShop];
-        render(crowd, date);
+        const district = summaryData['dashboard/summary'][currentShop].kpis.district_count;
+        render(crowd, date, district);
     } catch (e) { showError(e.message); }
     finally { showLoading(false); }
 }
@@ -34,7 +36,6 @@ async function loadWeather(date) {
         const data = await res.json();
 
         if (data.hourly) {
-            // Get average of hourly values
             const temps = data.hourly.temperature_2m || [];
             const humids = data.hourly.relative_humidity_2m || [];
             const pressures = data.hourly.surface_pressure || [];
@@ -58,10 +59,11 @@ async function loadWeather(date) {
     }
 }
 
-function render(crowd, date) {
+function render(crowd, date, district) {
     document.getElementById('shopName').textContent = CONFIG.SHOP_NAMES[currentShop];
     document.getElementById('date').textContent = date;
     document.getElementById('areaCount').textContent = formatNumber(crowd.total);
+    document.getElementById('districtCount').textContent = formatNumber(district || 0);
 
     const listEl = document.getElementById('deviceList');
     if (!listEl) return;
